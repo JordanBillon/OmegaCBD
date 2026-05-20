@@ -9,6 +9,9 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"
   },
+  "overrides": {
+    "oxc-minify": "0.132.0"
+  },
   "dependencies": {
     "nuxt": "^4.4.2",
     "vue": "^3.5.32",
