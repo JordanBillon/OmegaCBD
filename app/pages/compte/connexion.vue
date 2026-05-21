@@ -46,10 +46,18 @@
           </div>
 
           <div v-if="error" class="auth-error">{{ error }}</div>
-          <div v-if="success" class="auth-success">{{ success }}</div>
+          <div v-if="success" class="auth-success">
+            {{ success }}
+            <p v-if="!isLogin" class="resend-line">
+              Email non reçu ?
+              <button class="resend-btn" :disabled="resendCooldown > 0" @click.prevent="handleResend">
+                {{ resendCooldown > 0 ? `Renvoyer (${resendCooldown}s)` : 'Renvoyer l\'email' }}
+              </button>
+            </p>
+          </div>
 
-          <button type="submit" class="auth-submit" :disabled="loading">
-            {{ loading ? 'Chargement...' : (isLogin ? 'Se connecter' : 'Créer mon compte') }}
+          <button type="submit" class="auth-submit" :disabled="loading || lockoutTimer > 0">
+            {{ lockoutTimer > 0 ? `Réessayer dans ${lockoutTimer}s` : loading ? 'Chargement...' : (isLogin ? 'Se connecter' : 'Créer mon compte') }}
           </button>
 
           <p v-if="isLogin" class="auth-forgot" @click="handleReset">Mot de passe oublié ?</p>
@@ -89,6 +97,7 @@ const isAdult = (date) => {
 }
 
 const handleSubmit = async () => {
+  if (lockoutTimer.value > 0) return
   error.value = ''
   success.value = ''
   loading.value = true
@@ -101,7 +110,18 @@ const handleSubmit = async () => {
 
   if (isLogin.value) {
     const { error: err } = await supabase.auth.signInWithPassword({ email: email.value, password: password.value })
-    if (err) { error.value = 'Email ou mot de passe incorrect.'; loading.value = false; return }
+    if (err) {
+      loginAttempts.value++
+      if (loginAttempts.value >= 5) {
+        error.value = `Trop de tentatives. Réessayez dans 60 secondes.`
+        startLockout()
+      } else {
+        error.value = `Email ou mot de passe incorrect. (${loginAttempts.value}/5)`
+      }
+      loading.value = false
+      return
+    }
+    loginAttempts.value = 0
     router.push('/compte/dashboard')
   } else {
     const { error: err } = await supabase.auth.signUp({
@@ -121,6 +141,34 @@ const handleSubmit = async () => {
   }
 
   loading.value = false
+}
+
+const loginAttempts = ref(0)
+const lockoutTimer = ref(0)
+let lockoutInterval = null
+
+const startLockout = () => {
+  lockoutTimer.value = 60
+  lockoutInterval = setInterval(() => {
+    lockoutTimer.value--
+    if (lockoutTimer.value <= 0) {
+      clearInterval(lockoutInterval)
+      loginAttempts.value = 0
+    }
+  }, 1000)
+}
+
+const resendCooldown = ref(0)
+
+const handleResend = async () => {
+  const { error: err } = await supabase.auth.resend({ type: 'signup', email: email.value })
+  if (err) { error.value = err.message; return }
+  success.value = 'Email renvoyé ! Vérifiez votre boîte mail.'
+  resendCooldown.value = 60
+  const interval = setInterval(() => {
+    resendCooldown.value--
+    if (resendCooldown.value <= 0) clearInterval(interval)
+  }, 1000)
 }
 
 const handleReset = async () => {
@@ -303,6 +351,28 @@ const handleReset = async () => {
 
 .auth-forgot:hover {
   color: var(--gold);
+}
+
+.resend-line {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.resend-btn {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--gold);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.resend-btn:disabled {
+  color: var(--color-text-subtle);
+  cursor: not-allowed;
+  text-decoration: none;
 }
 
 .auth-legal {
