@@ -3,7 +3,7 @@
     <div class="navbar__inner container">
 
       <NuxtLink to="/" class="navbar__logo">
-        <img src="/logo.webp" alt="OMEGACBD" />
+        <img src="/logo.png" alt="OMEGACBD" />
       </NuxtLink>
 
       <nav class="navbar__nav">
@@ -146,8 +146,8 @@ watch(() => route.path, () => {
 }
 
 .navbar__logo img {
-  height: 48px;
-  width: auto;
+  height: 118px;
+  width: 118px;
   object-fit: contain;
 }
 

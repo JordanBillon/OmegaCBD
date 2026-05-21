@@ -2,7 +2,7 @@
   <footer class="footer">
     <div class="footer__top container">
       <div class="footer__brand">
-        <img src="/logo.webp" alt="OMEGACBD" class="footer__logo" />
+        <img src="/logo.png" alt="OMEGACBD" class="footer__logo" />
         <p class="footer__tagline">CBD premium, sélectionné avec soin.</p>
         <p class="footer__legal-note">Produits légaux — Taux THC &lt; 0.3% conformément à la législation française en vigueur.</p>
       </div>

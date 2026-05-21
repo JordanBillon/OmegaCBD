@@ -6,7 +6,9 @@
       <div class="hero__content">
         <p class="hero__eyebrow">Collection Premium</p>
         <h1 class="hero__title">L'excellence du CBD,<br><em>à l'état pur.</em></h1>
-        <div class="hero__divider"></div>
+        <div class="hero__logo-center">
+          <img src="/logo.png" alt="OMEGACBD" class="hero__logo-img" />
+        </div>
         <p class="hero__subtitle">Fleurs de CBD soigneusement sélectionnées pour leur qualité exceptionnelle.<br>Cultivées en indoor, testées en laboratoire.</p>
         <div class="hero__actions">
           <NuxtLink to="/produits/cbd" class="btn btn--primary">Découvrir nos produits</NuxtLink>
@@ -159,6 +161,18 @@
   height: 1px;
   background: var(--gold);
   margin: 0 auto 28px;
+}
+
+.hero__logo-center {
+  display: flex;
+  justify-content: center;
+  margin: -20px auto 0px;
+}
+
+.hero__logo-img {
+  width: 280px;
+  height: 280px;
+  object-fit: contain;
 }
 
 .hero__subtitle {
