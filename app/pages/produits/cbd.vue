@@ -10,20 +10,18 @@
 
     <div class="products-section container">
       <div class="products-grid">
-
-        <!-- AMNESIA HAZE JSH -->
-        <article class="product-card">
+        <article v-for="product in products" :key="product.id" class="product-card">
           <div class="product-card__image-wrap">
-            <img src="/Amnesia_Indoor_ss-fond.webp" alt="Amnesia Haze JSH" class="product-card__image" />
-            <span class="product-card__badge">Indoor</span>
+            <img :src="product.image" :alt="product.name" class="product-card__image" />
+            <span class="product-card__badge">{{ product.badge }}</span>
           </div>
           <div class="product-card__body">
             <p class="product-card__tag">Collection CBD</p>
-            <h2 class="product-card__name">Amnesia Haze JSH</h2>
+            <h2 class="product-card__name">{{ product.name }}</h2>
             <div class="product-card__rates">
               <div class="rate">
                 <span class="rate__label">CBD</span>
-                <span class="rate__value">18%</span>
+                <span class="rate__value">{{ product.cbd }}</span>
               </div>
               <div class="rate">
                 <span class="rate__label">THC</span>
@@ -34,145 +32,29 @@
                 <span class="rate__value">Indoor</span>
               </div>
             </div>
-            <p class="product-card__desc">
-              L'Amnesia Haze JSH est une variété emblématique aux arômes puissants d'agrumes et de terre.
-              Cultivée en intérieur dans des conditions strictement contrôlées, elle développe une concentration
-              exceptionnelle en cannabidiol et un profil terpénique riche. Notes citronnées, épicées et boisées
-              se mêlent pour offrir une expérience sensorielle de premier plan.
-            </p>
+            <p class="product-card__desc">{{ product.desc }}</p>
             <div class="product-card__aromes">
-              <span class="arome-tag">Citron</span>
-              <span class="arome-tag">Épices</span>
-              <span class="arome-tag">Terre</span>
-              <span class="arome-tag">Pin</span>
+              <span v-for="a in product.aromes" :key="a" class="arome-tag">{{ a }}</span>
             </div>
             <div class="product-card__prices">
-              <div class="price-option">
-                <span class="price-option__weight">2g</span>
-                <span class="price-option__price">7,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">5g</span>
-                <span class="price-option__price">16,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">10g</span>
-                <span class="price-option__price">29,90 €</span>
-              </div>
+              <button
+                v-for="opt in product.prices"
+                :key="opt.weight"
+                class="price-option"
+                :class="{ selected: selected[product.id] === opt.weight }"
+                @click="selected[product.id] = opt.weight"
+              >
+                <span class="price-option__weight">{{ opt.weight }}</span>
+                <span class="price-option__price">{{ opt.price.toFixed(2).replace('.', ',') }} €</span>
+              </button>
             </div>
-            <NuxtLink to="/contact" class="product-card__cta">Commander</NuxtLink>
+            <button class="product-card__cta" :class="{ added: added[product.id] }" @click="addToCart(product)">
+              {{ added[product.id] ? 'Ajouté ✓' : 'Ajouter au panier' }}
+            </button>
           </div>
         </article>
-
-        <!-- MANGO HAZE PREMIUM -->
-        <article class="product-card">
-          <div class="product-card__image-wrap">
-            <img src="/Mango_Haze_ss-fond.webp" alt="Mango Haze Premium" class="product-card__image" />
-            <span class="product-card__badge">Premium</span>
-          </div>
-          <div class="product-card__body">
-            <p class="product-card__tag">Collection CBD</p>
-            <h2 class="product-card__name">Mango Haze Premium</h2>
-            <div class="product-card__rates">
-              <div class="rate">
-                <span class="rate__label">CBD</span>
-                <span class="rate__value">15%</span>
-              </div>
-              <div class="rate">
-                <span class="rate__label">THC</span>
-                <span class="rate__value">&lt; 0.3%</span>
-              </div>
-              <div class="rate">
-                <span class="rate__label">Origine</span>
-                <span class="rate__value">Indoor</span>
-              </div>
-            </div>
-            <p class="product-card__desc">
-              La Mango Haze Premium séduit par ses arômes exotiques et sucrés de mangue fraîche. Issue d'une
-              culture indoor soignée, cette variété offre une inflorescence dense et résineuse. Son profil
-              aromatique tropical unique en fait l'une des préférées des amateurs de CBD haut de gamme.
-              Une douceur fruitée associée à des effets relaxants bien documentés.
-            </p>
-            <div class="product-card__aromes">
-              <span class="arome-tag">Mangue</span>
-              <span class="arome-tag">Tropical</span>
-              <span class="arome-tag">Doux</span>
-              <span class="arome-tag">Fruité</span>
-            </div>
-            <div class="product-card__prices">
-              <div class="price-option">
-                <span class="price-option__weight">2g</span>
-                <span class="price-option__price">8,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">5g</span>
-                <span class="price-option__price">18,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">10g</span>
-                <span class="price-option__price">33,90 €</span>
-              </div>
-            </div>
-            <NuxtLink to="/contact" class="product-card__cta">Commander</NuxtLink>
-          </div>
-        </article>
-
-        <!-- PURPLE HAZE PREMIUM -->
-        <article class="product-card">
-          <div class="product-card__image-wrap">
-            <img src="/Purple_Haze-ss-fond.webp" alt="Purple Haze Premium" class="product-card__image" />
-            <span class="product-card__badge">Premium</span>
-          </div>
-          <div class="product-card__body">
-            <p class="product-card__tag">Collection CBD</p>
-            <h2 class="product-card__name">Purple Haze Premium</h2>
-            <div class="product-card__rates">
-              <div class="rate">
-                <span class="rate__label">CBD</span>
-                <span class="rate__value">20%</span>
-              </div>
-              <div class="rate">
-                <span class="rate__label">THC</span>
-                <span class="rate__value">&lt; 0.3%</span>
-              </div>
-              <div class="rate">
-                <span class="rate__label">Origine</span>
-                <span class="rate__value">Indoor</span>
-              </div>
-            </div>
-            <p class="product-card__desc">
-              Reconnaissable à ses teintes violacées caractéristiques dues à sa haute teneur en anthocyanes,
-              la Purple Haze Premium est une pièce maîtresse de notre collection. Son profil aromatique
-              floral et fruité, allié à une concentration en CBD de 20%, en fait un produit d'exception
-              pour les connaisseurs les plus exigeants.
-            </p>
-            <div class="product-card__aromes">
-              <span class="arome-tag">Floral</span>
-              <span class="arome-tag">Baies</span>
-              <span class="arome-tag">Boisé</span>
-              <span class="arome-tag">Sucré</span>
-            </div>
-            <div class="product-card__prices">
-              <div class="price-option">
-                <span class="price-option__weight">2g</span>
-                <span class="price-option__price">8,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">5g</span>
-                <span class="price-option__price">18,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">10g</span>
-                <span class="price-option__price">33,90 €</span>
-              </div>
-            </div>
-            <NuxtLink to="/contact" class="product-card__cta">Commander</NuxtLink>
-          </div>
-        </article>
-
       </div>
 
-      <!-- INFO LÉGALE PRODUITS -->
       <div class="legal-block">
         <p>
           Tous nos produits sont conformes au décret français n°2021-1247 relatif au chanvre et à la réglementation
@@ -185,6 +67,55 @@
 
   </div>
 </template>
+
+<script setup>
+const { add, load } = useCart()
+onMounted(load)
+
+const products = [
+  {
+    id: 'amnesia-jsh',
+    name: 'Amnesia Haze JSH',
+    badge: 'Indoor',
+    cbd: '18%',
+    image: '/Amnesia_Indoor_ss-fond.webp',
+    desc: "L'Amnesia Haze JSH est une variété emblématique aux arômes puissants d'agrumes et de terre. Cultivée en intérieur dans des conditions strictement contrôlées, elle développe une concentration exceptionnelle en cannabidiol et un profil terpénique riche. Notes citronnées, épicées et boisées se mêlent pour offrir une expérience sensorielle de premier plan.",
+    aromes: ['Citron', 'Épices', 'Terre', 'Pin'],
+    prices: [{ weight: '2g', price: 7.90 }, { weight: '5g', price: 16.90 }, { weight: '10g', price: 29.90 }]
+  },
+  {
+    id: 'mango-haze',
+    name: 'Mango Haze Premium',
+    badge: 'Premium',
+    cbd: '15%',
+    image: '/Mango_Haze_ss-fond.webp',
+    desc: "La Mango Haze Premium séduit par ses arômes exotiques et sucrés de mangue fraîche. Issue d'une culture indoor soignée, cette variété offre une inflorescence dense et résineuse. Son profil aromatique tropical unique en fait l'une des préférées des amateurs de CBD haut de gamme. Une douceur fruitée associée à des effets relaxants bien documentés.",
+    aromes: ['Mangue', 'Tropical', 'Doux', 'Fruité'],
+    prices: [{ weight: '2g', price: 8.90 }, { weight: '5g', price: 18.90 }, { weight: '10g', price: 33.90 }]
+  },
+  {
+    id: 'purple-haze',
+    name: 'Purple Haze Premium',
+    badge: 'Premium',
+    cbd: '20%',
+    image: '/Purple_Haze-ss-fond.webp',
+    desc: "Reconnaissable à ses teintes violacées caractéristiques dues à sa haute teneur en anthocyanes, la Purple Haze Premium est une pièce maîtresse de notre collection. Son profil aromatique floral et fruité, allié à une concentration en CBD de 20%, en fait un produit d'exception pour les connaisseurs les plus exigeants.",
+    aromes: ['Floral', 'Baies', 'Boisé', 'Sucré'],
+    prices: [{ weight: '2g', price: 8.90 }, { weight: '5g', price: 18.90 }, { weight: '10g', price: 33.90 }]
+  }
+]
+
+const selected = reactive(Object.fromEntries(products.map(p => [p.id, '2g'])))
+const added = reactive(Object.fromEntries(products.map(p => [p.id, false])))
+
+const addToCart = (product) => {
+  const weight = selected[product.id]
+  const price = product.prices.find(p => p.weight === weight)?.price || 0
+  add({ productId: product.id, name: product.name, weight, price, image: product.image })
+  added[product.id] = true
+  setTimeout(() => { added[product.id] = false }, 1500)
+}
+</script>
 
 <style scoped>
 .products-page {
@@ -394,12 +325,25 @@
   color: var(--color-text);
 }
 
+.price-option.selected {
+  border: 1px solid var(--gold);
+  background: var(--color-bg);
+}
+
+.price-option.selected .price-option__price {
+  color: var(--gold);
+}
+
 .product-card__cta {
   display: block;
+  width: 100%;
   text-align: center;
   padding: 13px;
   background: var(--color-text);
   color: var(--color-bg);
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -408,6 +352,12 @@
 
 .product-card__cta:hover {
   background: var(--gold);
+  color: var(--white);
+}
+
+.product-card__cta.added {
+  background: var(--gold);
+  color: var(--white);
 }
 
 .legal-block {

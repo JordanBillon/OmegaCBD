@@ -1,6 +1,14 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
+  modules: ['@nuxtjs/supabase'],
+  supabase: {
+    redirectOptions: {
+      login: '/compte/connexion',
+      callback: '/compte/confirm',
+      exclude: ['/', '/produits/*', '/infos', '/contact'],
+    }
+  },
   css: ['~/assets/css/main.css'],
   app: {
     head: {

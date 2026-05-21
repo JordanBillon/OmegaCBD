@@ -10,20 +10,18 @@
 
     <div class="products-section container">
       <div class="products-grid">
-
-        <!-- ALIEN OG THX -->
-        <article class="product-card">
+        <article v-for="product in products" :key="product.id" class="product-card">
           <div class="product-card__image-wrap">
-            <img src="/Alien-OG-THX-1.webp" alt="Alien OG THX" class="product-card__image" />
-            <span class="product-card__badge">Exclusif</span>
+            <img :src="product.image" :alt="product.name" class="product-card__image" />
+            <span class="product-card__badge">{{ product.badge }}</span>
           </div>
           <div class="product-card__body">
             <p class="product-card__tag">Collection THX</p>
-            <h2 class="product-card__name">Alien OG</h2>
+            <h2 class="product-card__name">{{ product.name }}</h2>
             <div class="product-card__rates">
               <div class="rate">
                 <span class="rate__label">CBD</span>
-                <span class="rate__value">22%</span>
+                <span class="rate__value">{{ product.cbd }}</span>
               </div>
               <div class="rate">
                 <span class="rate__label">THC</span>
@@ -31,145 +29,30 @@
               </div>
               <div class="rate">
                 <span class="rate__label">Origine</span>
-                <span class="rate__value">Indoor+</span>
+                <span class="rate__value">{{ product.origine }}</span>
               </div>
             </div>
-            <p class="product-card__desc">
-              L'Alien OG THX est l'une des variétés les plus puissantes en cannabidiol de notre catalogue.
-              Cultivée en indoor premium avec un contrôle total des paramètres environnementaux, elle développe
-              une résine abondante et un profil terpénique d'une rare complexité. Ses arômes intenses
-              de pin, d'agrumes et de terre en font une pièce de collection.
-            </p>
+            <p class="product-card__desc">{{ product.desc }}</p>
             <div class="product-card__aromes">
-              <span class="arome-tag">Pin</span>
-              <span class="arome-tag">Citron</span>
-              <span class="arome-tag">Terre</span>
-              <span class="arome-tag">Résine</span>
+              <span v-for="a in product.aromes" :key="a" class="arome-tag">{{ a }}</span>
             </div>
             <div class="product-card__prices">
-              <div class="price-option">
-                <span class="price-option__weight">2g</span>
-                <span class="price-option__price">9,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">5g</span>
-                <span class="price-option__price">21,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">10g</span>
-                <span class="price-option__price">38,90 €</span>
-              </div>
+              <button
+                v-for="opt in product.prices"
+                :key="opt.weight"
+                class="price-option"
+                :class="{ selected: selected[product.id] === opt.weight }"
+                @click="selected[product.id] = opt.weight"
+              >
+                <span class="price-option__weight">{{ opt.weight }}</span>
+                <span class="price-option__price">{{ opt.price.toFixed(2).replace('.', ',') }} €</span>
+              </button>
             </div>
-            <NuxtLink to="/contact" class="product-card__cta">Commander</NuxtLink>
+            <button class="product-card__cta" :class="{ added: added[product.id] }" @click="addToCart(product)">
+              {{ added[product.id] ? 'Ajouté ✓' : 'Ajouter au panier' }}
+            </button>
           </div>
         </article>
-
-        <!-- FANTASY THX -->
-        <article class="product-card">
-          <div class="product-card__image-wrap">
-            <img src="/Fleur-THX-1.webp" alt="Fantasy THX" class="product-card__image" />
-            <span class="product-card__badge">Exclusif</span>
-          </div>
-          <div class="product-card__body">
-            <p class="product-card__tag">Collection THX</p>
-            <h2 class="product-card__name">Fantasy</h2>
-            <div class="product-card__rates">
-              <div class="rate">
-                <span class="rate__label">CBD</span>
-                <span class="rate__value">17%</span>
-              </div>
-              <div class="rate">
-                <span class="rate__label">THC</span>
-                <span class="rate__value">&lt; 0.3%</span>
-              </div>
-              <div class="rate">
-                <span class="rate__label">Origine</span>
-                <span class="rate__value">Indoor</span>
-              </div>
-            </div>
-            <p class="product-card__desc">
-              La Fantasy vous transporte dans un univers sensoriel unique. Ses inflorescences aux teintes
-              chaudes et à la couverture trichomique dense révèlent des arômes floraux et fruités d'une
-              grande finesse. Une variété accessible qui séduit dès la première ouverture par la générosité
-              de son bouquet olfactif.
-            </p>
-            <div class="product-card__aromes">
-              <span class="arome-tag">Floral</span>
-              <span class="arome-tag">Fruité</span>
-              <span class="arome-tag">Sucré</span>
-              <span class="arome-tag">Miel</span>
-            </div>
-            <div class="product-card__prices">
-              <div class="price-option">
-                <span class="price-option__weight">2g</span>
-                <span class="price-option__price">8,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">5g</span>
-                <span class="price-option__price">19,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">10g</span>
-                <span class="price-option__price">35,90 €</span>
-              </div>
-            </div>
-            <NuxtLink to="/contact" class="product-card__cta">Commander</NuxtLink>
-          </div>
-        </article>
-
-        <!-- EUPHORIA THX -->
-        <article class="product-card">
-          <div class="product-card__image-wrap">
-            <img src="/euphoria-1.webp" alt="Euphoria THX" class="product-card__image" />
-            <span class="product-card__badge">Exclusif</span>
-          </div>
-          <div class="product-card__body">
-            <p class="product-card__tag">Collection THX</p>
-            <h2 class="product-card__name">Euphoria</h2>
-            <div class="product-card__rates">
-              <div class="rate">
-                <span class="rate__label">CBD</span>
-                <span class="rate__value">19%</span>
-              </div>
-              <div class="rate">
-                <span class="rate__label">THC</span>
-                <span class="rate__value">&lt; 0.3%</span>
-              </div>
-              <div class="rate">
-                <span class="rate__label">Origine</span>
-                <span class="rate__value">Indoor</span>
-              </div>
-            </div>
-            <p class="product-card__desc">
-              La variété Euphoria est reconnue dans le milieu du CBD pour ses arômes profonds et enveloppants.
-              Ses notes boisées, épicées et légèrement terreuses la distinguent de la concurrence. Avec un taux
-              de CBD de 19% et une qualité de culture irréprochable, l'Euphoria représente l'essence même
-              du savoir-faire OMEGACBD.
-            </p>
-            <div class="product-card__aromes">
-              <span class="arome-tag">Boisé</span>
-              <span class="arome-tag">Épicé</span>
-              <span class="arome-tag">Terreux</span>
-              <span class="arome-tag">Vanille</span>
-            </div>
-            <div class="product-card__prices">
-              <div class="price-option">
-                <span class="price-option__weight">2g</span>
-                <span class="price-option__price">8,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">5g</span>
-                <span class="price-option__price">19,90 €</span>
-              </div>
-              <div class="price-option">
-                <span class="price-option__weight">10g</span>
-                <span class="price-option__price">35,90 €</span>
-              </div>
-            </div>
-            <NuxtLink to="/contact" class="product-card__cta">Commander</NuxtLink>
-          </div>
-        </article>
-
       </div>
 
       <div class="legal-block">
@@ -184,6 +67,58 @@
 
   </div>
 </template>
+
+<script setup>
+const { add, load } = useCart()
+onMounted(load)
+
+const products = [
+  {
+    id: 'alien-og',
+    name: 'Alien OG',
+    badge: 'Exclusif',
+    cbd: '22%',
+    origine: 'Indoor+',
+    image: '/Alien-OG-THX-1.webp',
+    desc: "L'Alien OG THX est l'une des variétés les plus puissantes en cannabidiol de notre catalogue. Cultivée en indoor premium avec un contrôle total des paramètres environnementaux, elle développe une résine abondante et un profil terpénique d'une rare complexité. Ses arômes intenses de pin, d'agrumes et de terre en font une pièce de collection.",
+    aromes: ['Pin', 'Citron', 'Terre', 'Résine'],
+    prices: [{ weight: '2g', price: 9.90 }, { weight: '5g', price: 21.90 }, { weight: '10g', price: 38.90 }]
+  },
+  {
+    id: 'fantasy',
+    name: 'Fantasy',
+    badge: 'Exclusif',
+    cbd: '17%',
+    origine: 'Indoor',
+    image: '/Fleur-THX-1.webp',
+    desc: "La Fantasy vous transporte dans un univers sensoriel unique. Ses inflorescences aux teintes chaudes et à la couverture trichomique dense révèlent des arômes floraux et fruités d'une grande finesse. Une variété accessible qui séduit dès la première ouverture par la générosité de son bouquet olfactif.",
+    aromes: ['Floral', 'Fruité', 'Sucré', 'Miel'],
+    prices: [{ weight: '2g', price: 8.90 }, { weight: '5g', price: 19.90 }, { weight: '10g', price: 35.90 }]
+  },
+  {
+    id: 'euphoria',
+    name: 'Euphoria',
+    badge: 'Exclusif',
+    cbd: '19%',
+    origine: 'Indoor',
+    image: '/euphoria-1.webp',
+    desc: "La variété Euphoria est reconnue dans le milieu du CBD pour ses arômes profonds et enveloppants. Ses notes boisées, épicées et légèrement terreuses la distinguent de la concurrence. Avec un taux de CBD de 19% et une qualité de culture irréprochable, l'Euphoria représente l'essence même du savoir-faire OMEGACBD.",
+    aromes: ['Boisé', 'Épicé', 'Terreux', 'Vanille'],
+    prices: [{ weight: '2g', price: 8.90 }, { weight: '5g', price: 19.90 }, { weight: '10g', price: 35.90 }]
+  }
+]
+
+const selected = reactive(Object.fromEntries(products.map(p => [p.id, '2g'])))
+const added = reactive(Object.fromEntries(products.map(p => [p.id, false])))
+
+const addToCart = (product) => {
+  const weight = selected[product.id]
+  const price = product.prices.find(p => p.weight === weight)?.price || 0
+  add({ productId: product.id, name: product.name, weight, price, image: product.image })
+  added[product.id] = true
+  setTimeout(() => { added[product.id] = false }, 1500)
+}
+</script>
 
 <style scoped>
 .products-page {
@@ -393,12 +328,25 @@
   color: var(--color-text);
 }
 
+.price-option.selected {
+  border: 1px solid var(--gold);
+  background: var(--color-bg);
+}
+
+.price-option.selected .price-option__price {
+  color: var(--gold);
+}
+
 .product-card__cta {
   display: block;
+  width: 100%;
   text-align: center;
   padding: 13px;
   background: var(--color-text);
   color: var(--color-bg);
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-body);
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -407,6 +355,12 @@
 
 .product-card__cta:hover {
   background: var(--gold);
+  color: var(--white);
+}
+
+.product-card__cta.added {
+  background: var(--gold);
+  color: var(--white);
 }
 
 .legal-block {

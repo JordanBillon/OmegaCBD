@@ -36,7 +36,7 @@
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
             <circle cx="12" cy="7" r="4"/>
           </svg>
-          <span class="action-label">Mon Compte</span>
+          <span class="action-label">{{ isLoggedIn ? 'Mon Compte' : 'Se connecter' }}</span>
         </NuxtLink>
 
         <NuxtLink to="/panier" class="action-link">
@@ -79,7 +79,7 @@
       <NuxtLink to="/infos" class="mobile-link" @click="mobileOpen = false">Infos</NuxtLink>
       <NuxtLink to="/contact" class="mobile-link" @click="mobileOpen = false">Contact</NuxtLink>
       <div class="mobile-actions">
-        <NuxtLink to="/compte" class="mobile-link" @click="mobileOpen = false">Mon Compte</NuxtLink>
+        <NuxtLink to="/compte" class="mobile-link" @click="mobileOpen = false">{{ isLoggedIn ? 'Mon Compte' : 'Se connecter' }}</NuxtLink>
         <NuxtLink to="/panier" class="mobile-link" @click="mobileOpen = false">Mon Panier</NuxtLink>
       </div>
     </div>
@@ -88,18 +88,33 @@
 
 <script setup>
 const route = useRoute()
+const router = useRouter()
+const supabase = useSupabaseClient()
 const isScrolled = ref(false)
 const productsOpen = ref(false)
 const mobileOpen = ref(false)
 const { isDark, toggle } = useTheme()
+const isLoggedIn = ref(false)
 
 const isProductsRoute = computed(() => route.path.startsWith('/produits'))
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('scroll', () => {
     isScrolled.value = window.scrollY > 20
   })
+  const { data: { user } } = await supabase.auth.getUser()
+  isLoggedIn.value = !!user
+
+  supabase.auth.onAuthStateChange((_, session) => {
+    isLoggedIn.value = !!session
+  })
 })
+
+const logout = async () => {
+  await supabase.auth.signOut()
+  isLoggedIn.value = false
+  router.push('/')
+}
 
 watch(() => route.path, () => {
   mobileOpen.value = false
