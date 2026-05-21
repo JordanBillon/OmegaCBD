@@ -29,6 +29,7 @@ export default defineNuxtConfig({
   css: ['~/assets/css/main.css'],
   app: {
     head: {
+      htmlAttrs: { lang: 'fr' },
       title: 'OMEGACBD — CBD Premium',
       meta: [
         { charset: 'utf-8' },

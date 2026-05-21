@@ -9,7 +9,7 @@
 
       <div class="footer__links">
         <div class="footer__col">
-          <h4 class="footer__col-title">Navigation</h4>
+          <h3 class="footer__col-title">Navigation</h3>
           <NuxtLink to="/" class="footer__link">Accueil</NuxtLink>
           <NuxtLink to="/produits/cbd" class="footer__link">Collection CBD</NuxtLink>
           <NuxtLink to="/produits/thx" class="footer__link">Collection THX</NuxtLink>
@@ -18,7 +18,7 @@
         </div>
 
         <div class="footer__col">
-          <h4 class="footer__col-title">Informations</h4>
+          <h3 class="footer__col-title">Informations</h3>
           <NuxtLink to="/infos#mentions-legales" class="footer__link">Mentions légales</NuxtLink>
           <NuxtLink to="/infos#cgv" class="footer__link">CGV</NuxtLink>
           <NuxtLink to="/infos#confidentialite" class="footer__link">Politique de confidentialité</NuxtLink>
@@ -26,7 +26,7 @@
         </div>
 
         <div class="footer__col">
-          <h4 class="footer__col-title">Contact</h4>
+          <h3 class="footer__col-title">Contact</h3>
           <p class="footer__text">contact@omegacbd.fr</p>
           <p class="footer__text">Du lundi au vendredi<br>9h – 18h</p>
         </div>
