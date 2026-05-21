@@ -12,11 +12,11 @@
           <NuxtLink to="/produits/cbd" class="btn btn--primary">Découvrir nos produits</NuxtLink>
           <NuxtLink to="/infos" class="btn btn--ghost">En savoir plus</NuxtLink>
         </div>
-      </div>
-      <div class="hero__badge">
-        <span>THC</span>
-        <strong>&lt; 0.3%</strong>
-        <span>Légal en France</span>
+        <div class="hero__badge">
+          <span>THC</span>
+          <strong>&lt; 0.3%</strong>
+          <span>Légal en France</span>
+        </div>
       </div>
     </section>
 
@@ -119,13 +119,11 @@
 <style scoped>
 /* HERO */
 .hero {
-  min-height: 100vh;
-  background: var(--color-bg);
+  background: var(--color-surface);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--navbar-height) + 60px) 24px 80px;
-  position: relative;
+  padding: calc(var(--navbar-height) + 80px) 24px 40px;
   text-align: center;
   transition: background var(--transition);
 }
@@ -178,15 +176,13 @@
 }
 
 .hero__badge {
-  position: absolute;
-  bottom: 40px;
-  right: 40px;
-  border: 1px solid var(--color-border);
-  padding: 16px 20px;
-  text-align: center;
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   gap: 2px;
+  border: 1px solid var(--color-border);
+  padding: 12px 20px;
+  text-align: center;
+  margin-top: 46px;
 }
 
 .hero__badge span {
@@ -251,7 +247,7 @@
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 12px;
+  margin-bottom: 24px;
 }
 
 .section-title {
@@ -263,7 +259,7 @@
 
 /* COLLECTIONS */
 .collections {
-  padding: 100px 0;
+  padding: 40px 0 60px;
   background: var(--color-bg);
   transition: background var(--transition);
 }
@@ -380,7 +376,7 @@
 
 /* CTA BAND */
 .cta-band {
-  padding: 100px 0;
+  padding: 40px 0 80px;
   background: var(--color-surface);
   text-align: center;
   transition: background var(--transition);
@@ -411,9 +407,6 @@
 @media (max-width: 900px) {
   .engagements__grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .hero__badge {
-    display: none;
   }
 }
 

@@ -45,6 +45,7 @@
   background: var(--black);
   color: var(--grey-400);
   padding-top: 60px;
+  border-top: 1px solid var(--gold);
 }
 
 .footer__top {

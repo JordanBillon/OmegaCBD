@@ -141,9 +141,10 @@ function handleSubmit() {
 }
 
 .page-hero {
-  background: var(--black);
+  background: var(--color-surface);
   text-align: center;
   padding: 80px 24px;
+  transition: background var(--transition);
 }
 
 .page-hero__eyebrow {
@@ -158,8 +159,9 @@ function handleSubmit() {
   font-family: var(--font-display);
   font-size: clamp(40px, 6vw, 72px);
   font-weight: 300;
-  color: var(--white);
+  color: var(--color-text);
   margin-bottom: 20px;
+  transition: color var(--transition);
 }
 
 .page-hero__divider {
@@ -172,7 +174,8 @@ function handleSubmit() {
 .page-hero__sub {
   font-size: 14px;
   letter-spacing: 0.08em;
-  color: var(--grey-600);
+  color: var(--color-text-muted);
+  transition: color var(--transition);
 }
 
 .contact-section {
@@ -191,7 +194,7 @@ function handleSubmit() {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 400;
-  color: var(--black);
+  color: var(--color-text);
   margin-bottom: 32px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--grey-200);
@@ -220,20 +223,21 @@ function handleSubmit() {
 
 .info-block__value {
   font-size: 14px;
-  color: var(--grey-800);
+  color: var(--color-text);
   line-height: 1.6;
 }
 
 .contact-legal {
   margin-top: 32px;
   padding: 16px;
-  border: 1px solid var(--grey-200);
-  background: var(--grey-100);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  transition: background var(--transition);
 }
 
 .contact-legal p {
   font-size: 11px;
-  color: var(--grey-600);
+  color: var(--color-text-muted);
   line-height: 1.7;
 }
 
@@ -252,7 +256,7 @@ function handleSubmit() {
   font-size: 10px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--grey-600);
+  color: var(--color-text-muted);
   margin-bottom: 8px;
 }
 
@@ -263,7 +267,7 @@ function handleSubmit() {
   background: var(--white);
   font-family: var(--font-body);
   font-size: 14px;
-  color: var(--black);
+  color: var(--color-text);
   transition: border-color var(--transition);
   outline: none;
   appearance: none;
@@ -300,7 +304,7 @@ function handleSubmit() {
 
 .form-label-checkbox {
   font-size: 12px;
-  color: var(--grey-600);
+  color: var(--color-text-muted);
   line-height: 1.6;
 }
 
@@ -312,7 +316,7 @@ function handleSubmit() {
 .form-submit {
   width: 100%;
   padding: 15px;
-  background: var(--black);
+  background: var(--color-text);
   color: var(--white);
   font-family: var(--font-body);
   font-size: 11px;

@@ -192,9 +192,10 @@
 }
 
 .page-hero {
-  background: var(--black);
+  background: var(--color-surface);
   text-align: center;
   padding: 80px 24px;
+  transition: background var(--transition);
 }
 
 .page-hero__eyebrow {
@@ -209,8 +210,9 @@
   font-family: var(--font-display);
   font-size: clamp(40px, 6vw, 72px);
   font-weight: 300;
-  color: var(--white);
+  color: var(--color-text);
   margin-bottom: 20px;
+  transition: color var(--transition);
 }
 
 .page-hero__divider {
@@ -224,7 +226,8 @@
   font-size: 14px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--grey-600);
+  color: var(--color-text-muted);
+  transition: color var(--transition);
 }
 
 .products-section {
@@ -242,6 +245,8 @@
   background: var(--white);
   border: 1px solid var(--grey-200);
   transition: box-shadow var(--transition), transform var(--transition);
+  display: flex;
+  flex-direction: column;
 }
 
 .product-card:hover {
@@ -284,6 +289,9 @@
 
 .product-card__body {
   padding: 28px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .product-card__tag {
@@ -336,6 +344,7 @@
   color: var(--grey-600);
   line-height: 1.75;
   margin-bottom: 16px;
+  flex: 1;
 }
 
 .product-card__aromes {
