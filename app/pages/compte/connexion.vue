@@ -109,7 +109,14 @@ const handleSubmit = async () => {
       password: password.value,
       options: { data: { first_name: firstName.value, last_name: lastName.value, birthdate: birthdate.value } }
     })
-    if (err) { error.value = err.message; loading.value = false; return }
+    if (err) {
+      if (err.message.includes('already registered') || err.message.includes('already been registered')) {
+        error.value = 'Un compte existe déjà avec cet email.'
+      } else {
+        error.value = err.message
+      }
+      loading.value = false; return
+    }
     success.value = 'Compte créé ! Vérifiez votre email pour confirmer votre inscription.'
   }
 
