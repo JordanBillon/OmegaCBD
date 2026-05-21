@@ -70,6 +70,8 @@
 
 <script setup>
 const { add, load } = useCart()
+const router = useRouter()
+const user = useSupabaseUser()
 onMounted(load)
 
 const products = [
@@ -109,6 +111,7 @@ const selected = reactive(Object.fromEntries(products.map(p => [p.id, '2g'])))
 const added = reactive(Object.fromEntries(products.map(p => [p.id, false])))
 
 const addToCart = (product) => {
+  if (!user.value) { router.push('/compte/connexion'); return }
   const weight = selected[product.id]
   const price = product.prices.find(p => p.weight === weight)?.price || 0
   add({ productId: product.id, name: product.name, weight, price, image: product.image })
