@@ -242,9 +242,9 @@
 }
 
 .product-card {
-  background: var(--white);
-  border: 1px solid var(--grey-200);
-  transition: box-shadow var(--transition), transform var(--transition);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  transition: box-shadow var(--transition), transform var(--transition), background var(--transition);
   display: flex;
   flex-direction: column;
 }
@@ -256,7 +256,7 @@
 
 .product-card__image-wrap {
   position: relative;
-  background: var(--grey-100);
+  background: var(--color-surface);
   height: 260px;
   display: flex;
   align-items: center;
@@ -306,7 +306,7 @@
   font-family: var(--font-display);
   font-size: 26px;
   font-weight: 400;
-  color: var(--black);
+  color: var(--color-text);
   margin-bottom: 16px;
 }
 
@@ -315,8 +315,8 @@
   gap: 20px;
   margin-bottom: 16px;
   padding: 12px 0;
-  border-top: 1px solid var(--grey-200);
-  border-bottom: 1px solid var(--grey-200);
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .rate {
@@ -329,19 +329,19 @@
   font-size: 9px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--grey-400);
+  color: var(--color-text-subtle);
 }
 
 .rate__value {
   font-family: var(--font-display);
   font-size: 18px;
   font-weight: 500;
-  color: var(--black);
+  color: var(--color-text);
 }
 
 .product-card__desc {
   font-size: 13px;
-  color: var(--grey-600);
+  color: var(--color-text-muted);
   line-height: 1.75;
   margin-bottom: 16px;
   flex: 1;
@@ -359,8 +359,8 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 4px 10px;
-  border: 1px solid var(--grey-200);
-  color: var(--grey-600);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
 }
 
 .product-card__prices {
@@ -374,15 +374,16 @@
   flex-direction: column;
   align-items: center;
   padding: 10px 14px;
-  background: var(--grey-100);
+  background: var(--color-surface);
   flex: 1;
+  transition: background var(--transition);
 }
 
 .price-option__weight {
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--grey-400);
+  color: var(--color-text-subtle);
   margin-bottom: 4px;
 }
 
@@ -390,15 +391,15 @@
   font-family: var(--font-display);
   font-size: 18px;
   font-weight: 500;
-  color: var(--black);
+  color: var(--color-text);
 }
 
 .product-card__cta {
   display: block;
   text-align: center;
   padding: 13px;
-  background: var(--black);
-  color: var(--white);
+  background: var(--color-text);
+  color: var(--color-bg);
   font-size: 11px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -410,14 +411,15 @@
 }
 
 .legal-block {
-  border: 1px solid var(--grey-200);
+  border: 1px solid var(--color-border);
   padding: 24px 28px;
-  background: var(--grey-100);
+  background: var(--color-surface);
+  transition: background var(--transition);
 }
 
 .legal-block p {
   font-size: 12px;
-  color: var(--grey-600);
+  color: var(--color-text-muted);
   line-height: 1.8;
 }
 
