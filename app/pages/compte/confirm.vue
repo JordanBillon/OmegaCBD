@@ -29,7 +29,7 @@ onMounted(async () => {
   transition: background var(--transition);
 }
 .page-hero__eyebrow {
-  font-size: 10px; letter-spacing: 0.3em; text-transform: uppercase;
+  font-size: var(--fs-tiny); letter-spacing: 0.3em; text-transform: uppercase;
   color: var(--gold); margin-bottom: 16px;
 }
 .page-hero__title {
@@ -37,5 +37,5 @@ onMounted(async () => {
   font-weight: 300; color: var(--color-text); margin-bottom: 20px;
 }
 .page-hero__divider { width: 50px; height: 1px; background: var(--gold); margin: 0 auto 20px; }
-.page-hero__sub { font-size: 14px; color: var(--color-text-muted); }
+.page-hero__sub { font-size: var(--fs-body); color: var(--color-text-muted); }
 </style>

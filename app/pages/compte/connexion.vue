@@ -187,12 +187,12 @@ const handleReset = async () => {
 .page-hero {
   background: var(--color-surface);
   text-align: center;
-  padding: 80px 24px;
+  padding: var(--hero-padding-v) 24px;
   transition: background var(--transition);
 }
 
 .page-hero__eyebrow {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -216,7 +216,7 @@ const handleReset = async () => {
 }
 
 .page-hero__sub {
-  font-size: 14px;
+  font-size: var(--fs-body);
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
   transition: color var(--transition);
@@ -241,7 +241,7 @@ const handleReset = async () => {
 .auth-tab {
   flex: 1;
   padding: 16px;
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -276,7 +276,7 @@ const handleReset = async () => {
 }
 
 .form-label {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -288,7 +288,7 @@ const handleReset = async () => {
   background: var(--color-surface);
   color: var(--color-text);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: var(--fs-body);
   outline: none;
   transition: border-color var(--transition), background var(--transition);
 }
@@ -298,7 +298,7 @@ const handleReset = async () => {
 }
 
 .form-hint {
-  font-size: 11px;
+  font-size: var(--fs-label);
   color: var(--color-text-subtle);
 }
 
@@ -306,7 +306,7 @@ const handleReset = async () => {
   padding: 12px 16px;
   background: #fff0f0;
   border-left: 3px solid #e53e3e;
-  font-size: 13px;
+  font-size: var(--fs-small);
   color: #c53030;
 }
 
@@ -314,7 +314,7 @@ const handleReset = async () => {
   padding: 12px 16px;
   background: #f0fff4;
   border-left: 3px solid var(--gold);
-  font-size: 13px;
+  font-size: var(--fs-small);
   color: var(--color-text-muted);
 }
 
@@ -323,7 +323,7 @@ const handleReset = async () => {
   background: var(--color-text);
   color: var(--color-bg);
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   cursor: pointer;
@@ -343,7 +343,7 @@ const handleReset = async () => {
 
 .auth-forgot {
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--color-text-subtle);
   cursor: pointer;
   text-decoration: underline;
@@ -355,14 +355,14 @@ const handleReset = async () => {
 
 .resend-line {
   margin-top: 8px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--color-text-muted);
 }
 
 .resend-btn {
   background: none;
   border: none;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--gold);
   cursor: pointer;
   text-decoration: underline;
@@ -383,7 +383,7 @@ const handleReset = async () => {
 }
 
 .auth-legal p {
-  font-size: 11px;
+  font-size: var(--fs-label);
   color: var(--color-text-subtle);
   line-height: 1.7;
 }

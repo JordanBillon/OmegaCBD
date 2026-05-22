@@ -51,7 +51,10 @@
               <span>Total</span>
               <span>{{ total.toFixed(2).replace('.', ',') }} €</span>
             </div>
-            <NuxtLink to="/contact" class="btn btn--primary btn--full">Commander</NuxtLink>
+            <button class="btn btn--primary btn--full" :disabled="loading" @click="commander">
+              {{ loading ? 'Commande en cours…' : 'Commander' }}
+            </button>
+            <p v-if="orderError" class="order-error">{{ orderError }}</p>
             <button class="panier-clear" @click="confirmClear">Vider le panier</button>
           </div>
         </div>
@@ -79,6 +82,31 @@
 <script setup>
 const { items, remove, updateQuantity, clear, total, count, load } = useCart()
 onMounted(load)
+
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
+const loading = ref(false)
+const orderError = ref('')
+
+const commander = async () => {
+  if (!user.value) return navigateTo('/compte/connexion')
+  loading.value = true
+  orderError.value = ''
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return navigateTo('/compte/connexion')
+  const { error } = await supabase.from('orders').insert({
+    user_id: session.user.id,
+    items: items.value,
+    total: total.value
+  })
+  loading.value = false
+  if (error) {
+    orderError.value = 'Une erreur est survenue. Veuillez réessayer.'
+    return
+  }
+  clear()
+  navigateTo('/compte/dashboard')
+}
 
 const modal = reactive({ show: false, title: '', sub: '', confirmLabel: '', confirm: () => {} })
 
@@ -113,12 +141,12 @@ const askRemoveItem = (item) => openModal(
 .page-hero {
   background: var(--color-surface);
   text-align: center;
-  padding: 80px 24px;
+  padding: var(--hero-padding-v) 24px;
   transition: background var(--transition);
 }
 
 .page-hero__eyebrow {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -142,7 +170,7 @@ const askRemoveItem = (item) => openModal(
 }
 
 .page-hero__sub {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text-muted);
 }
 
@@ -200,7 +228,7 @@ const askRemoveItem = (item) => openModal(
 }
 
 .panier-item__weight {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.1em;
   color: var(--color-text-subtle);
   text-transform: uppercase;
@@ -225,7 +253,7 @@ const askRemoveItem = (item) => openModal(
 }
 
 .qty-value {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text);
   min-width: 20px;
   text-align: center;
@@ -241,7 +269,7 @@ const askRemoveItem = (item) => openModal(
 .panier-item__remove {
   background: none;
   border: none;
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text-subtle);
   cursor: pointer;
   transition: color var(--transition);
@@ -274,7 +302,7 @@ const askRemoveItem = (item) => openModal(
   display: flex;
   justify-content: space-between;
   padding: 10px 0;
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text-muted);
   border-bottom: 1px solid var(--color-border);
 }
@@ -293,7 +321,7 @@ const askRemoveItem = (item) => openModal(
 .btn {
   display: inline-block;
   padding: 14px 32px;
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -331,12 +359,19 @@ const askRemoveItem = (item) => openModal(
   margin-bottom: 12px;
 }
 
+.order-error {
+  font-size: var(--fs-xs);
+  color: #e53e3e;
+  text-align: center;
+  margin-top: 8px;
+}
+
 .panier-clear {
   display: block;
   width: 100%;
   background: none;
   border: none;
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-subtle);
@@ -380,7 +415,7 @@ const askRemoveItem = (item) => openModal(
 }
 
 .modal-sub {
-  font-size: 13px;
+  font-size: var(--fs-small);
   color: var(--color-text-muted);
   margin-bottom: 32px;
 }
@@ -394,7 +429,7 @@ const askRemoveItem = (item) => openModal(
   flex: 1;
   padding: 12px;
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -446,20 +481,23 @@ const askRemoveItem = (item) => openModal(
   opacity: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 850px) {
   .panier-content {
     grid-template-columns: 1fr;
   }
 
   .panier-item {
-    grid-template-columns: 60px 1fr;
-    grid-template-rows: auto auto;
+    grid-template-columns: 80px 1fr auto;
+    grid-template-areas:
+      "img info remove"
+      "img qty  price";
+    gap: 10px 16px;
   }
 
-  .panier-item__qty,
-  .panier-item__price,
-  .panier-item__remove {
-    grid-column: 2;
-  }
+  .panier-item__img    { grid-area: img; align-self: center; width: 80px; height: 80px; }
+  .panier-item__info   { grid-area: info; align-self: end; }
+  .panier-item__remove { grid-area: remove; align-self: start; }
+  .panier-item__qty    { grid-area: qty; width: fit-content; align-self: center; }
+  .panier-item__price  { grid-area: price; align-self: center; text-align: right; }
 }
 </style>

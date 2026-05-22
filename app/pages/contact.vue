@@ -14,55 +14,59 @@
         <div class="contact-info">
           <h2 class="contact-info__title">Informations</h2>
 
-          <div class="info-block">
-            <div class="info-block__icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
-                <polyline points="22,6 12,13 2,6"/>
-              </svg>
-            </div>
-            <div>
-              <p class="info-block__label">Email</p>
-              <p class="info-block__value">contact@omegacbd.fr</p>
-            </div>
-          </div>
+          <div class="info-blocks">
 
-          <div class="info-block">
-            <div class="info-block__icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.47 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/>
-              </svg>
+            <div class="info-block">
+              <div class="info-block__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                  <polyline points="22,6 12,13 2,6"/>
+                </svg>
+              </div>
+              <div>
+                <p class="info-block__label">Email</p>
+                <p class="info-block__value">contact@omegacbd.fr</p>
+              </div>
             </div>
-            <div>
-              <p class="info-block__label">Téléphone</p>
-              <p class="info-block__value">Sur demande par email</p>
-            </div>
-          </div>
 
-          <div class="info-block">
-            <div class="info-block__icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="10"/>
-                <polyline points="12 6 12 12 16 14"/>
-              </svg>
+            <div class="info-block">
+              <div class="info-block__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.47 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6 6l.91-.91a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.73 16.92z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="info-block__label">Téléphone</p>
+                <p class="info-block__value">Sur demande par email</p>
+              </div>
             </div>
-            <div>
-              <p class="info-block__label">Horaires</p>
-              <p class="info-block__value">Lundi – Vendredi<br>9h00 – 18h00</p>
-            </div>
-          </div>
 
-          <div class="info-block">
-            <div class="info-block__icon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                <circle cx="12" cy="10" r="3"/>
-              </svg>
+            <div class="info-block">
+              <div class="info-block__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <circle cx="12" cy="12" r="10"/>
+                  <polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <div>
+                <p class="info-block__label">Horaires</p>
+                <p class="info-block__value">Lundi – Vendredi<br>9h00 – 18h00</p>
+              </div>
             </div>
-            <div>
-              <p class="info-block__label">Entreprise</p>
-              <p class="info-block__value">OMEGACBD<br>France</p>
+
+            <div class="info-block">
+              <div class="info-block__icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <div>
+                <p class="info-block__label">Entreprise</p>
+                <p class="info-block__value">OMEGACBD<br>France</p>
+              </div>
             </div>
+
           </div>
 
           <div class="contact-legal">
@@ -143,12 +147,12 @@ function handleSubmit() {
 .page-hero {
   background: var(--color-surface);
   text-align: center;
-  padding: 80px 24px;
+  padding: var(--hero-padding-v) 24px;
   transition: background var(--transition);
 }
 
 .page-hero__eyebrow {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -172,7 +176,7 @@ function handleSubmit() {
 }
 
 .page-hero__sub {
-  font-size: 14px;
+  font-size: var(--fs-body);
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
   transition: color var(--transition);
@@ -214,7 +218,7 @@ function handleSubmit() {
 }
 
 .info-block__label {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--grey-400);
@@ -222,7 +226,7 @@ function handleSubmit() {
 }
 
 .info-block__value {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text);
   line-height: 1.6;
 }
@@ -236,7 +240,7 @@ function handleSubmit() {
 }
 
 .contact-legal p {
-  font-size: 11px;
+  font-size: var(--fs-label);
   color: var(--color-text-muted);
   line-height: 1.7;
 }
@@ -253,7 +257,7 @@ function handleSubmit() {
 
 .form-label {
   display: block;
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -266,7 +270,7 @@ function handleSubmit() {
   border: 1px solid var(--grey-200);
   background: var(--white);
   font-family: var(--font-body);
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text);
   transition: border-color var(--transition);
   outline: none;
@@ -303,7 +307,7 @@ function handleSubmit() {
 }
 
 .form-label-checkbox {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--color-text-muted);
   line-height: 1.6;
 }
@@ -319,7 +323,7 @@ function handleSubmit() {
   background: var(--color-text);
   color: var(--white);
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -338,7 +342,73 @@ function handleSubmit() {
     grid-template-columns: 1fr;
     gap: 40px;
   }
+
+  /* Section informations — grille 2x2 */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .contact-info__title {
+    text-align: center;
+    width: 100%;
+  }
+
+  .contact-info .info-blocks {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--color-border);
+    width: 100%;
+  }
+
+  .info-block {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 0;
+    background: var(--color-bg);
+    padding: 24px 16px;
+  }
+
+  .info-block__icon {
+    margin-top: 0;
+  }
+
+  .contact-legal {
+    text-align: center;
+  }
+
+  /* Formulaire — centré, inputs réduits */
+  .contact-form-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .contact-form-wrap__title {
+    width: 100%;
+    max-width: 460px;
+    text-align: center;
+  }
+
+  .contact-form {
+    width: 100%;
+    max-width: 460px;
+  }
+
   .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .form-group--checkbox {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 400px) {
+  .contact-info .info-blocks {
     grid-template-columns: 1fr;
   }
 }

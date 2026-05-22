@@ -128,12 +128,12 @@ const addToCart = (product) => {
 .page-hero {
   background: var(--color-surface);
   text-align: center;
-  padding: 80px 24px;
+  padding: var(--hero-padding-v) 24px;
   transition: background var(--transition);
 }
 
 .page-hero__eyebrow {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -157,7 +157,7 @@ const addToCart = (product) => {
 }
 
 .page-hero__sub {
-  font-size: 14px;
+  font-size: var(--fs-body);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -215,7 +215,7 @@ const addToCart = (product) => {
   right: 14px;
   background: var(--black);
   color: var(--gold);
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   padding: 5px 10px;
@@ -229,7 +229,7 @@ const addToCart = (product) => {
 }
 
 .product-card__tag {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
@@ -274,7 +274,7 @@ const addToCart = (product) => {
 }
 
 .product-card__desc {
-  font-size: 13px;
+  font-size: var(--fs-small);
   color: var(--color-text-muted);
   line-height: 1.75;
   margin-bottom: 16px;
@@ -289,7 +289,7 @@ const addToCart = (product) => {
 }
 
 .arome-tag {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 4px 10px;
@@ -314,7 +314,7 @@ const addToCart = (product) => {
 }
 
 .price-option__weight {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-subtle);
@@ -347,7 +347,7 @@ const addToCart = (product) => {
   cursor: pointer;
   border: none;
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.18em;
   text-transform: uppercase;
   transition: background var(--transition);
@@ -371,7 +371,7 @@ const addToCart = (product) => {
 }
 
 .legal-block p {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   color: var(--color-text-muted);
   line-height: 1.8;
 }

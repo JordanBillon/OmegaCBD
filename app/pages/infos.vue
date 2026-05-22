@@ -192,12 +192,12 @@
 .page-hero {
   background: var(--color-surface);
   text-align: center;
-  padding: 80px 24px;
+  padding: var(--hero-padding-v) 24px;
   transition: background var(--transition);
 }
 
 .page-hero__eyebrow {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -221,7 +221,7 @@
 }
 
 .page-hero__sub {
-  font-size: 14px;
+  font-size: var(--fs-body);
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
   transition: color var(--transition);
@@ -234,28 +234,29 @@
 
 .infos-nav {
   display: flex;
+  flex-wrap: wrap;
   gap: 0;
   margin-bottom: 60px;
   border: 1px solid var(--grey-200);
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .infos-nav__link {
   flex: 1;
   text-align: center;
   padding: 12px 24px;
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-text-muted);
   border-right: 1px solid var(--grey-200);
+  border-bottom: 1px solid var(--grey-200);
+  margin-bottom: -1px;
+  margin-right: -1px;
   white-space: nowrap;
   transition: color var(--transition), background var(--transition);
 }
 
-.infos-nav__link:last-child {
-  border-right: none;
-}
 
 .infos-nav__link:hover {
   color: var(--color-text);
@@ -281,7 +282,7 @@
 }
 
 .info-block__content p {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text-muted);
   line-height: 1.85;
   margin-bottom: 16px;
@@ -313,20 +314,20 @@
 }
 
 .info-highlight__item strong {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--gold);
 }
 
 .info-highlight__item span {
-  font-size: 13px;
+  font-size: var(--fs-small);
   color: var(--color-text);
 }
 
 .info-disclaimer {
   font-style: italic;
-  font-size: 13px !important;
+  font-size: var(--fs-small) !important;
   color: var(--grey-400) !important;
   border-left: 2px solid var(--gold);
   padding-left: 16px;
@@ -342,9 +343,6 @@
 @media (max-width: 480px) {
   .info-highlight {
     grid-template-columns: 1fr;
-  }
-  .infos-nav {
-    flex-wrap: wrap;
   }
 }
 </style>

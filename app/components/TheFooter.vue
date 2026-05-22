@@ -74,7 +74,7 @@
 }
 
 .footer__legal-note {
-  font-size: 11px;
+  font-size: var(--fs-label);
   color: #555;
   line-height: 1.7;
   max-width: 280px;
@@ -88,7 +88,7 @@
 
 .footer__col-title {
   font-family: var(--font-body);
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -98,7 +98,7 @@
 
 .footer__link {
   display: block;
-  font-size: 13px;
+  font-size: var(--fs-small);
   color: var(--grey-600);
   margin-bottom: 10px;
   transition: color var(--transition);
@@ -109,7 +109,7 @@
 }
 
 .footer__text {
-  font-size: 13px;
+  font-size: var(--fs-small);
   color: var(--grey-600);
   margin-bottom: 10px;
   line-height: 1.6;
@@ -126,7 +126,7 @@
 
 .footer__copy,
 .footer__age {
-  font-size: 11px;
+  font-size: var(--fs-label);
   color: #444;
 }
 

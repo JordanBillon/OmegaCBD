@@ -135,7 +135,7 @@
 }
 
 .hero__eyebrow {
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.25em;
   text-transform: uppercase;
   color: var(--gold);
@@ -200,7 +200,7 @@
 }
 
 .hero__badge span {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-text-subtle);
@@ -217,7 +217,7 @@
 .btn {
   display: inline-block;
   padding: 14px 32px;
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -257,7 +257,7 @@
 }
 
 .section-eyebrow {
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--gold);
@@ -315,7 +315,7 @@
 }
 
 .collection-card__tag {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--gold);
@@ -331,14 +331,14 @@
 }
 
 .collection-card__desc {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: rgba(255,255,255,0.6);
   line-height: 1.7;
   margin-bottom: 20px;
 }
 
 .collection-card__link {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--gold);
@@ -383,7 +383,7 @@
 }
 
 .engagement__text {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text-muted);
   line-height: 1.7;
 }

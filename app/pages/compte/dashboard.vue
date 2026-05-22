@@ -40,23 +40,43 @@
 
         <div class="dashboard-card">
           <h2 class="dashboard-card__title">Mes commandes</h2>
-          <div v-if="orders.length === 0" class="dashboard-empty">
+          <div v-if="!loadingOrders && orders.length === 0" class="dashboard-empty">
             <p>Aucune commande pour le moment.</p>
             <NuxtLink to="/produits/cbd" class="dashboard-link">Découvrir nos produits →</NuxtLink>
           </div>
-          <div v-else class="orders-list">
-            <div v-for="order in orders" :key="order.id" class="order-row">
-              <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
-              <span class="order-status" :class="order.status">{{ order.status }}</span>
-              <span class="order-total">{{ order.total }} €</span>
-              <span class="order-date">{{ formatDate(order.created_at) }}</span>
+          <div v-else-if="!loadingOrders" class="orders-list">
+            <div class="order-row order-row--header">
+              <span>Référence</span>
+              <span>Statut</span>
+              <span>Montant</span>
+              <span>Date</span>
+              <span></span>
+            </div>
+            <div v-for="order in orders" :key="order.id" class="order-item">
+              <div class="order-row order-row--clickable" @click="toggleOrder(order.id)">
+                <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
+                <span class="order-status" :class="order.status">{{ order.status }}</span>
+                <span class="order-total">{{ Number(order.total).toFixed(2).replace('.', ',') }} €</span>
+                <span class="order-date">{{ formatDate(order.created_at) }}</span>
+                <span class="order-chevron" :class="{ open: expandedOrder === order.id }">›</span>
+              </div>
+              <div v-if="expandedOrder === order.id" class="order-details">
+                <div v-for="item in order.items" :key="`${item.productId}-${item.weight}`" class="order-detail-row">
+                  <span class="detail-name">{{ item.name }}</span>
+                  <span class="detail-weight">{{ item.weight }}</span>
+                  <span class="detail-qty">× {{ item.quantity }}</span>
+                  <span class="detail-price">{{ (item.price * item.quantity).toFixed(2).replace('.', ',') }} €</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
       </div>
 
-      <button class="logout-btn" @click="logout">Se déconnecter</button>
+      <div class="logout-wrapper">
+        <button class="logout-btn" @click="logout">Se déconnecter</button>
+      </div>
 
     </div>
   </div>
@@ -71,6 +91,12 @@ const router = useRouter()
 
 const profile = ref(null)
 const orders = ref([])
+const expandedOrder = ref(null)
+const loadingOrders = ref(true)
+
+const toggleOrder = (id) => {
+  expandedOrder.value = expandedOrder.value === id ? null : id
+}
 
 const formatDate = (date) => {
   if (!date) return '—'
@@ -91,6 +117,7 @@ onMounted(async () => {
 
   const { data: o } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
   orders.value = o || []
+  loadingOrders.value = false
 })
 </script>
 
@@ -102,12 +129,12 @@ onMounted(async () => {
 .page-hero {
   background: var(--color-surface);
   text-align: center;
-  padding: 80px 24px;
+  padding: var(--hero-padding-v) 24px;
   transition: background var(--transition);
 }
 
 .page-hero__eyebrow {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--gold);
@@ -130,7 +157,7 @@ onMounted(async () => {
 }
 
 .page-hero__sub {
-  font-size: 14px;
+  font-size: var(--fs-body);
   letter-spacing: 0.08em;
   color: var(--color-text-muted);
 }
@@ -176,14 +203,14 @@ onMounted(async () => {
 }
 
 .info-label {
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-text-subtle);
 }
 
 .info-value {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text);
 }
 
@@ -193,31 +220,103 @@ onMounted(async () => {
 }
 
 .dashboard-empty p {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--color-text-muted);
   margin-bottom: 16px;
 }
 
 .dashboard-link {
-  font-size: 12px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--gold);
 }
 
+.order-item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
 .order-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  grid-template-columns: 1fr 1fr 1fr 1fr auto;
   gap: 16px;
   padding: 12px 0;
-  border-bottom: 1px solid var(--color-border);
-  font-size: 13px;
+  font-size: var(--fs-small);
   color: var(--color-text);
+}
+
+.order-row--clickable {
+  cursor: pointer;
+  transition: color var(--transition);
+}
+
+.order-row--clickable:hover {
+  background: var(--color-surface);
+}
+
+.order-chevron {
+  font-size: 18px;
+  color: var(--color-text-subtle);
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.order-chevron.open {
+  transform: rotate(90deg);
+}
+
+.order-details {
+  padding: 8px 0 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-detail-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 16px;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  font-size: var(--fs-small);
+  color: var(--color-text-muted);
+}
+
+.detail-name {
+  color: var(--color-text);
+}
+
+.detail-weight {
+  font-size: var(--fs-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.detail-qty {
+  color: var(--color-text-subtle);
+}
+
+.detail-price {
+  color: var(--color-text);
+  font-family: var(--font-display);
+}
+
+.order-row--header {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .order-status {
   text-transform: uppercase;
-  font-size: 10px;
+  font-size: var(--fs-tiny);
   letter-spacing: 0.1em;
 }
 
@@ -226,13 +325,18 @@ onMounted(async () => {
 .order-status.cancelled { color: #e53e3e; }
 .order-status.shipped { color: #4299e1; }
 
+.logout-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
 .logout-btn {
   padding: 12px 32px;
   border: 1px solid var(--color-border);
   background: none;
   color: var(--color-text-muted);
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   cursor: pointer;
@@ -244,9 +348,59 @@ onMounted(async () => {
   color: #e53e3e;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 400px) {
+  .dashboard-card {
+    padding: 20px 16px;
+  }
+
+  .order-row--header {
+    display: none;
+  }
+
+  .order-row {
+    grid-template-columns: 1fr 1fr auto;
+    grid-template-areas: "ref status chev" "total date chev";
+    gap: 16px 12px;
+    padding: 16px 12px;
+  }
+
+  .order-id     { grid-area: ref; }
+  .order-status  { grid-area: status; }
+  .order-total   { grid-area: total; }
+  .order-date    { grid-area: date; }
+  .order-chevron { grid-area: chev; align-self: center; }
+
+  .order-id::before,
+  .order-status::before,
+  .order-total::before,
+  .order-date::before {
+    display: block;
+    font-size: var(--fs-tiny);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-text-subtle);
+    padding-bottom: 5px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .order-id::before     { content: 'Référence'; }
+  .order-status::before  { content: 'Statut'; }
+  .order-total::before   { content: 'Montant'; }
+  .order-date::before    { content: 'Date'; }
+
+  .order-detail-row {
+    grid-template-columns: 1fr auto auto;
+  }
+
+  .detail-weight {
+    display: none;
   }
 }
 </style>

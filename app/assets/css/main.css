@@ -10,7 +10,15 @@
   --font-display: 'Cormorant Garamond', Georgia, serif;
   --font-body: 'Helvetica Now Text', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --navbar-height: 80px;
+  --hero-padding-v: 80px;
   --transition: 0.3s ease;
+
+  /* Typographie responsive */
+  --fs-tiny:  11px;
+  --fs-label: 12px;
+  --fs-xs:    13px;
+  --fs-small: 14px;
+  --fs-body:  15px;
 
   /* Thème clair (défaut) */
   --color-bg: #fafafa;
@@ -71,6 +79,28 @@ button {
   border: none;
   background: none;
   font-family: var(--font-body);
+}
+
+@media (max-width: 900px) {
+  :root {
+    --hero-padding-v: 56px;
+    --fs-tiny:  10px;
+    --fs-label: 11px;
+    --fs-xs:    12px;
+    --fs-small: 13px;
+    --fs-body:  14px;
+  }
+}
+
+@media (max-width: 400px) {
+  :root {
+    --hero-padding-v: 40px;
+    --fs-tiny:  9px;
+    --fs-label: 10px;
+    --fs-xs:    11px;
+    --fs-small: 12px;
+    --fs-body:  13px;
+  }
 }
 
 .container {

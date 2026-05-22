@@ -161,7 +161,7 @@ watch(() => route.path, () => {
 
 .nav-link {
   font-family: var(--font-body);
-  font-size: 13px;
+  font-size: var(--fs-small);
   font-weight: 500;
   letter-spacing: 0.12em;
   text-transform: uppercase;
@@ -228,7 +228,7 @@ watch(() => route.path, () => {
 .dropdown-item {
   display: block;
   padding: 12px 20px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -250,7 +250,7 @@ watch(() => route.path, () => {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -329,7 +329,7 @@ watch(() => route.path, () => {
 .mobile-link {
   display: block;
   padding: 14px 24px;
-  font-size: 13px;
+  font-size: var(--fs-small);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--color-text-muted);
@@ -343,13 +343,13 @@ watch(() => route.path, () => {
 
 .mobile-link--sub {
   padding-left: 40px;
-  font-size: 12px;
+  font-size: var(--fs-xs);
 }
 
 .mobile-section-title {
   display: block;
   padding: 14px 24px 4px;
-  font-size: 11px;
+  font-size: var(--fs-label);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-text-subtle);
@@ -365,6 +365,10 @@ watch(() => route.path, () => {
     display: none;
   }
 
+  .navbar__actions {
+    margin-left: auto;
+  }
+
   .burger {
     display: flex;
   }
@@ -375,6 +379,21 @@ watch(() => route.path, () => {
 
   .action-link .action-label {
     display: none;
+  }
+}
+
+@media (max-width: 400px) {
+  .navbar__inner {
+    gap: 8px;
+  }
+
+  .navbar__logo img {
+    height: 80px;
+    width: 80px;
+  }
+
+  .navbar__actions {
+    gap: 12px;
   }
 }
 </style>
