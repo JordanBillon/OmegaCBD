@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
     `,
   })
 
-  if (error) throw createError({ statusCode: 500, message: 'Erreur envoi email.' })
+  if (error) throw createError({ statusCode: 500, message: error.message || 'Erreur envoi email.' })
 
   return { success: true }
 })
