@@ -1,7 +1,5 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
-
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
   const { nom, prenom, email, sujet, message, age, honeypot } = body
@@ -12,6 +10,9 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Champs manquants.' })
   }
 
+  const config = useRuntimeConfig()
+  const resend = new Resend(config.resendApiKey)
+
   const sujets: Record<string, string> = {
     commande: 'Passer une commande',
     info: 'Informations produits',
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
   const { error } = await resend.emails.send({
     from: 'OMEGACBD <contact@omegacbd.fr>',
-    to: 'jordan-billon@hotmail.fr',
+    to: ['jordan-billon@hotmail.fr'],
     replyTo: email,
     subject: `[Contact] ${sujets[sujet] || 'Nouveau message'} — ${prenom} ${nom}`,
     html: `
