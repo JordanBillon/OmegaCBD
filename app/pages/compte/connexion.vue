@@ -45,6 +45,13 @@
             <p class="form-hint">Réservé aux personnes majeures (18 ans et plus)</p>
           </div>
 
+          <div v-if="isLogin" class="form-remember">
+            <label class="remember-label">
+              <input v-model="rememberMe" type="checkbox" class="remember-checkbox" />
+              Rester connecté 30 jours
+            </label>
+          </div>
+
           <div v-if="error" class="auth-error">{{ error }}</div>
           <div v-if="success" class="auth-success">
             {{ success }}
@@ -81,6 +88,7 @@ const router = useRouter()
 const isLogin = ref(true)
 const email = ref('')
 const password = ref('')
+const rememberMe = ref(false)
 const firstName = ref('')
 const lastName = ref('')
 const birthdate = ref('')
@@ -122,6 +130,13 @@ const handleSubmit = async () => {
       return
     }
     loginAttempts.value = 0
+    if (rememberMe.value) {
+      localStorage.setItem('rememberMe', 'true')
+      localStorage.setItem('loginDate', Date.now().toString())
+    } else {
+      localStorage.removeItem('rememberMe')
+      localStorage.removeItem('loginDate')
+    }
     router.push('/compte/dashboard')
   } else {
     const { error: err } = await supabase.auth.signUp({
@@ -339,6 +354,27 @@ const handleReset = async () => {
 .auth-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.form-remember {
+  display: flex;
+  align-items: center;
+}
+
+.remember-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.remember-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--gold);
+  cursor: pointer;
 }
 
 .auth-forgot {

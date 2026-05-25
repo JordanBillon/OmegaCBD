@@ -333,8 +333,8 @@ onMounted(async () => {
 .logout-btn {
   padding: 12px 32px;
   border: 1px solid var(--color-border);
-  background: none;
-  color: var(--color-text-muted);
+  background: var(--color-text);
+  color: var(--color-bg);
   font-family: var(--font-body);
   font-size: var(--fs-label);
   letter-spacing: 0.15em;
