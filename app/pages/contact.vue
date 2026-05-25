@@ -109,8 +109,10 @@
               <input id="age" v-model="form.age" type="checkbox" required />
               <label for="age" class="form-label-checkbox">Je certifie avoir 18 ans ou plus et accepte la <NuxtLink to="/infos#confidentialite">politique de confidentialité</NuxtLink>.</label>
             </div>
-            <button type="submit" class="form-submit">
-              {{ submitted ? 'Message envoyé ✓' : 'Envoyer le message' }}
+            <input v-model="form.honeypot" type="text" name="website" tabindex="-1" autocomplete="off" class="honeypot" aria-hidden="true" />
+            <div v-if="error" class="form-error">{{ error }}</div>
+            <button type="submit" class="form-submit" :disabled="loading">
+              {{ submitted ? 'Message envoyé ✓' : loading ? 'Envoi en cours...' : 'Envoyer le message' }}
             </button>
           </form>
         </div>
@@ -128,14 +130,26 @@ const form = reactive({
   email: '',
   sujet: '',
   message: '',
-  age: false
+  age: false,
+  honeypot: ''
 })
 
 const submitted = ref(false)
+const loading = ref(false)
+const error = ref('')
 
-function handleSubmit() {
-  submitted.value = true
-  setTimeout(() => { submitted.value = false }, 4000)
+async function handleSubmit() {
+  loading.value = true
+  error.value = ''
+  try {
+    await $fetch('/api/contact', { method: 'POST', body: form })
+    submitted.value = true
+    Object.assign(form, { nom: '', prenom: '', email: '', sujet: '', message: '', age: false, honeypot: '' })
+  } catch {
+    error.value = 'Une erreur est survenue. Veuillez réessayer ou nous contacter par email.'
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -333,8 +347,30 @@ function handleSubmit() {
   margin-top: 8px;
 }
 
-.form-submit:hover {
+.form-submit:hover:not(:disabled) {
   background: var(--gold);
+}
+
+.form-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  opacity: 0;
+  height: 0;
+  width: 0;
+}
+
+.form-error {
+  padding: 12px 16px;
+  background: #fff0f0;
+  border-left: 3px solid #e53e3e;
+  font-size: var(--fs-small);
+  color: #c53030;
+  margin-bottom: 8px;
 }
 
 @media (max-width: 900px) {
