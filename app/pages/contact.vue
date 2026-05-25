@@ -120,6 +120,22 @@
       </div>
     </div>
 
+    <!-- POPUP CONFIRMATION -->
+    <Teleport to="body">
+      <div v-if="showConfirm" class="confirm-overlay" @click.self="showConfirm = false">
+        <div class="confirm-modal">
+          <p class="confirm-eyebrow">OMEGACBD</p>
+          <h2 class="confirm-title">Confirmer l'envoi</h2>
+          <div class="confirm-divider"></div>
+          <p class="confirm-text">Votre message sera transmis à notre équipe. Merci de noter qu'une seule soumission est autorisée par minute.</p>
+          <div class="confirm-actions">
+            <button class="confirm-btn confirm-btn--cancel" @click="showConfirm = false">Annuler</button>
+            <button class="confirm-btn confirm-btn--send" @click="confirmSend">Envoyer</button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
   </div>
 </template>
 
@@ -137,8 +153,14 @@ const form = reactive({
 const submitted = ref(false)
 const loading = ref(false)
 const error = ref('')
+const showConfirm = ref(false)
 
-async function handleSubmit() {
+function handleSubmit() {
+  showConfirm.value = true
+}
+
+async function confirmSend() {
+  showConfirm.value = false
   loading.value = true
   error.value = ''
   try {
@@ -281,14 +303,27 @@ async function handleSubmit() {
 .form-input {
   width: 100%;
   padding: 12px 14px;
-  border: 1px solid var(--grey-200);
-  background: var(--white);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg);
   font-family: var(--font-body);
   font-size: var(--fs-body);
   color: var(--color-text);
-  transition: border-color var(--transition);
+  transition: border-color var(--transition), background var(--transition), color var(--transition);
   outline: none;
   appearance: none;
+}
+
+.form-input option {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px var(--color-bg) inset;
+  -webkit-text-fill-color: var(--color-text);
+  transition: background-color 9999s ease;
 }
 
 .form-input:focus {
@@ -335,7 +370,7 @@ async function handleSubmit() {
   width: 100%;
   padding: 15px;
   background: var(--color-text);
-  color: var(--white);
+  color: var(--color-bg);
   font-family: var(--font-body);
   font-size: var(--fs-label);
   font-weight: 600;
@@ -441,6 +476,95 @@ async function handleSubmit() {
   .form-group--checkbox {
     align-items: flex-start;
   }
+}
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  padding: 24px;
+  backdrop-filter: blur(4px);
+}
+
+.confirm-modal {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  padding: 48px 40px;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+}
+
+.confirm-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.confirm-title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--color-text);
+  margin-bottom: 16px;
+}
+
+.confirm-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+  margin: 0 auto 24px;
+}
+
+.confirm-text {
+  font-size: var(--fs-body);
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  margin-bottom: 32px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.confirm-btn {
+  padding: 12px 28px;
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+  border: none;
+}
+
+.confirm-btn--cancel {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.confirm-btn--cancel:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+.confirm-btn--send {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+.confirm-btn--send:hover {
+  background: var(--gold);
+  color: var(--white);
 }
 
 @media (max-width: 400px) {
