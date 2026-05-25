@@ -300,9 +300,9 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
-  background: var(--grey-200);
+  background: var(--color-border);
   margin: 24px 0;
-  border: 1px solid var(--grey-200);
+  border: 1px solid var(--color-border);
 }
 
 .info-highlight__item {
@@ -310,7 +310,8 @@
   flex-direction: column;
   gap: 6px;
   padding: 20px;
-  background: var(--grey-100);
+  background: var(--color-surface);
+  transition: background var(--transition);
 }
 
 .info-highlight__item strong {
