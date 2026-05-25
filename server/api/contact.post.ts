@@ -10,8 +10,7 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, message: 'Champs manquants.' })
   }
 
-  const config = useRuntimeConfig()
-  const resend = new Resend(config.resendApiKey)
+  const resend = new Resend(process.env.RESEND_API_KEY)
 
   const sujets: Record<string, string> = {
     commande: 'Passer une commande',

@@ -26,10 +26,7 @@ export default defineNuxtConfig({
       exclude: ['/', '/produits/*', '/infos', '/contact'],
     }
   },
-  runtimeConfig: {
-    resendApiKey: process.env.RESEND_API_KEY
-  },
-  css: ['~/assets/css/main.css'],
+css: ['~/assets/css/main.css'],
   app: {
     head: {
       htmlAttrs: { lang: 'fr' },
