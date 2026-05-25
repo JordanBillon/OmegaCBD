@@ -19,6 +19,9 @@ export default defineNuxtConfig({
       strictTransportSecurity: { maxAge: 31536000, includeSubdomains: true }
     }
   },
+  runtimeConfig: {
+    resendApiKey: ''
+  },
   supabase: {
     redirectOptions: {
       login: '/compte/connexion',
