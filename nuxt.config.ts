@@ -34,7 +34,17 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'OMEGACBD — Fleurs de CBD premium sélectionnées avec soin pour une expérience d\'exception. Qualité garantie, taux THC < 0.3%.' }
+        { name: 'description', content: 'OMEGACBD — Fleurs de CBD premium sélectionnées avec soin pour une expérience d\'exception. Qualité garantie, taux THC < 0.3%.' },
+        { property: 'og:type', content: 'website' },
+        { property: 'og:site_name', content: 'OMEGACBD' },
+        { property: 'og:title', content: 'OMEGACBD — CBD Premium' },
+        { property: 'og:description', content: 'Fleurs de CBD premium sélectionnées avec soin pour une expérience d\'exception. Qualité garantie, taux THC < 0.3%.' },
+        { property: 'og:image', content: 'https://omegacbd.fr/logo.png' },
+        { property: 'og:url', content: 'https://omegacbd.fr' },
+        { name: 'twitter:card', content: 'summary' },
+        { name: 'twitter:title', content: 'OMEGACBD — CBD Premium' },
+        { name: 'twitter:description', content: 'Fleurs de CBD premium sélectionnées avec soin pour une expérience d\'exception. Qualité garantie, taux THC < 0.3%.' },
+        { name: 'twitter:image', content: 'https://omegacbd.fr/logo.png' },
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
