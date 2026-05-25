@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
 
   const { error } = await resend.emails.send({
     from: 'OMEGACBD <contact@omegacbd.fr>',
-    to: 'contact@omegacbd.fr',
+    to: 'jordan-billon@hotmail.fr',
     replyTo: email,
     subject: `[Contact] ${sujets[sujet] || 'Nouveau message'} — ${prenom} ${nom}`,
     html: `
