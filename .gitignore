@@ -24,4 +24,5 @@ logs
 !.env.example
 
 # Claude Code local config
-.claude/settings.local.json
+.claude/
+CLAUDE.md
