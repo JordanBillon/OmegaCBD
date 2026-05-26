@@ -226,7 +226,6 @@ const confirmOrder = async () => {
   clear()
   showAddressForm.value = false
 
-  console.log('[order-confirm] email:', session.user.email, 'items:', orderSnapshot.items.length)
   $fetch('/api/order-confirm', {
     method: 'POST',
     body: {
