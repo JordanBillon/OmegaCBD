@@ -78,7 +78,7 @@
   </Transition>
 
   <Transition name="modal">
-    <div v-if="showAddressForm" class="modal-overlay" @click.self="closeAddressForm">
+    <div v-if="showAddressForm" class="modal-overlay">
       <div class="modal-card modal-card--large">
         <button class="modal-close" @click="closeAddressForm" aria-label="Fermer">✕</button>
         <p class="modal-title">Adresse de livraison</p>
@@ -125,6 +125,7 @@
           <p v-if="addressError" class="order-error">{{ addressError }}</p>
         </div>
         <div class="modal-actions modal-actions--top">
+          <button class="modal-btn modal-btn--cancel" @click="closeAddressForm">Annuler</button>
           <button class="modal-btn modal-btn--confirm" :disabled="loading" @click="confirmOrder">
             {{ loading ? 'En cours…' : 'Confirmer la commande' }}
           </button>
