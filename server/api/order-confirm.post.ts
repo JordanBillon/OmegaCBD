@@ -154,11 +154,81 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 500, message: error.message || 'Erreur envoi email.' })
   }
 
+  const htmlAdmin = `<!DOCTYPE html>
+<html lang="fr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f4f4f4;font-family:Helvetica Neue,Helvetica,Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#0a0a0a;border-radius:2px;overflow:hidden;">
+
+        <!-- HEADER -->
+        <tr>
+          <td style="background:#0a0a0a;padding:32px 48px;text-align:center;border-bottom:1px solid #2a2a2a;">
+            <p style="margin:0 0 8px;font-size:11px;letter-spacing:0.3em;text-transform:uppercase;color:#c9a96e;">OMEGACBD — ADMIN</p>
+            <h1 style="margin:0 0 8px;font-size:26px;font-weight:300;color:#fafafa;letter-spacing:0.05em;">Nouvelle commande</h1>
+            <p style="margin:0;font-size:22px;font-weight:500;color:#c9a96e;">${Number(total).toFixed(2).replace('.', ',')} €</p>
+          </td>
+        </tr>
+
+        <!-- CLIENT -->
+        <tr>
+          <td style="padding:28px 48px 0;">
+            <p style="margin:0 0 12px;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#c9a96e;">Client</p>
+            <div style="background:#141414;border-left:3px solid #c9a96e;padding:16px 24px;">
+              <p style="margin:0;font-size:14px;color:#fafafa;line-height:2;">
+                ${escape(sa.first_name)} ${escape(sa.last_name)}<br>
+                <span style="color:#aaaaaa;">${escape(email)}</span><br>
+                <span style="color:#aaaaaa;">${escape(sa.phone)}</span>
+              </p>
+            </div>
+          </td>
+        </tr>
+
+        <!-- ARTICLES -->
+        <tr>
+          <td style="padding:28px 48px 0;">
+            <p style="margin:0 0 12px;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#c9a96e;">Articles à préparer</p>
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <th style="padding:0 0 10px;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#555555;font-weight:400;text-align:left;">Produit</th>
+                <th style="padding:0 0 10px;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#555555;font-weight:400;text-align:center;">Qté</th>
+                <th style="padding:0 0 10px;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#555555;font-weight:400;text-align:right;">Prix</th>
+              </tr>
+              ${itemsRows}
+              <tr>
+                <td colspan="2" style="padding:16px 0 0;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:#aaaaaa;">Total</td>
+                <td style="padding:16px 0 0;font-size:18px;color:#fafafa;text-align:right;font-weight:500;">${Number(total).toFixed(2).replace('.', ',')} €</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- ADRESSE -->
+        <tr>
+          <td style="padding:28px 48px 40px;">
+            <p style="margin:0 0 12px;font-size:10px;letter-spacing:0.2em;text-transform:uppercase;color:#c9a96e;">Adresse de livraison</p>
+            <div style="background:#141414;border-left:3px solid #c9a96e;padding:16px 24px;">
+              <p style="margin:0;font-size:14px;color:#fafafa;line-height:2;">
+                ${escape(sa.first_name)} ${escape(sa.last_name)}<br>
+                ${escape(sa.line1)}<br>
+                ${addr2}${escape(sa.postal_code)} ${escape(sa.city)}
+              </p>
+            </div>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`
+
   await resend.emails.send({
     from: 'OMEGACBD <contact@omegacbd.fr>',
     to: ['jordan-billon@hotmail.fr'],
-    subject: `[Nouvelle commande] ${escape(shipping_address?.first_name || first_name || '')} — ${Number(total).toFixed(2).replace('.', ',')} €`,
-    html,
+    subject: `[Nouvelle commande] ${escape(sa.first_name || first_name || '')} ${escape(sa.last_name || '')} — ${Number(total).toFixed(2).replace('.', ',')} €`,
+    html: htmlAdmin,
   }).catch(e => console.error('Échec mail admin:', e))
 
   return { success: true }
