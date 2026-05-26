@@ -39,12 +39,15 @@
           <span class="action-label">{{ isLoggedIn ? 'Mon Compte' : 'Se connecter' }}</span>
         </NuxtLink>
 
-        <NuxtLink to="/panier" class="action-link" aria-label="Mon panier">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <path d="M16 10a4 4 0 0 1-8 0"/>
-          </svg>
+        <NuxtLink to="/panier" class="action-link cart-link" aria-label="Mon panier">
+          <span class="cart-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+              <line x1="3" y1="6" x2="21" y2="6"/>
+              <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            <span v-if="count > 0" class="cart-badge">{{ count > 9 ? '9+' : count }}</span>
+          </span>
           <span class="action-label">Panier</span>
         </NuxtLink>
 
@@ -95,6 +98,8 @@ const productsOpen = ref(false)
 const mobileOpen = ref(false)
 const { isDark, toggle } = useTheme()
 const isLoggedIn = ref(false)
+const { count, load } = useCart()
+onMounted(load)
 
 const isProductsRoute = computed(() => route.path.startsWith('/produits'))
 
@@ -274,6 +279,31 @@ watch(() => route.path, () => {
 
 .theme-toggle:hover {
   color: var(--color-text);
+}
+
+.cart-icon-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cart-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  background: var(--gold);
+  color: var(--white);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+  line-height: 1;
 }
 
 .action-label {
