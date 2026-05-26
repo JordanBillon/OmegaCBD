@@ -78,7 +78,7 @@
   </Transition>
 
   <Transition name="modal">
-    <div v-if="showAddressForm" class="modal-overlay" @click.self="showAddressForm = false">
+    <div v-if="showAddressForm" class="modal-overlay" @click.self="closeAddressForm">
       <div class="modal-card modal-card--large">
         <p class="modal-title">Adresse de livraison</p>
         <p class="modal-sub">France métropolitaine uniquement</p>
@@ -124,7 +124,7 @@
           <p v-if="addressError" class="order-error">{{ addressError }}</p>
         </div>
         <div class="modal-actions modal-actions--top">
-          <button class="modal-btn modal-btn--cancel" @click="showAddressForm = false">Annuler</button>
+          <button class="modal-btn modal-btn--cancel" @click="closeAddressForm">Annuler</button>
           <button class="modal-btn modal-btn--confirm" :disabled="loading" @click="confirmOrder">
             {{ loading ? 'En cours…' : 'Confirmer la commande' }}
           </button>
@@ -152,6 +152,11 @@ const currentSession = ref(null)
 const address = reactive({
   first_name: '', last_name: '', line1: '', line2: '', postal_code: '', city: '', phone: ''
 })
+
+const closeAddressForm = () => {
+  showAddressForm.value = false
+  currentSession.value = null
+}
 
 const commander = async () => {
   if (!user.value) return navigateTo('/compte/connexion')
@@ -189,7 +194,7 @@ const confirmOrder = async () => {
     addressError.value = 'Le code postal doit contenir exactement 5 chiffres.'
     return
   }
-  if (!/^(0|\+33)[1-9]\d{8}$/.test(address.phone.replace(/\s/g, ''))) {
+  if (!/^(0|\+33)[1-9]\d{8}$/.test(address.phone.replace(/[\s.\-]/g, ''))) {
     addressError.value = 'Numéro de téléphone invalide (ex : 06 12 34 56 78).'
     return
   }
@@ -232,7 +237,6 @@ const confirmOrder = async () => {
       items: orderSnapshot.items,
       total: orderSnapshot.total,
       shipping_address: { ...address },
-      email: session.user.email,
       first_name: address.first_name
     }
   }).catch(e => console.error('Échec mail confirmation:', e))

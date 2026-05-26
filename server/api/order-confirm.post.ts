@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { serverSupabaseUser } from '#supabase/server'
 
 const escape = (str: string) => String(str)
   .replace(/&/g, '&amp;')
@@ -6,9 +7,24 @@ const escape = (str: string) => String(str)
   .replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;')
 
+const requests = new Map<string, number>()
+
 export default defineEventHandler(async (event) => {
+  const user = await serverSupabaseUser(event)
+  if (!user) {
+    throw createError({ statusCode: 401, message: 'Non authentifié.' })
+  }
+
+  const ip = getRequestHeader(event, 'x-forwarded-for') || 'unknown'
+  const now = Date.now()
+  if ((requests.get(ip) || 0) > now - 60_000) {
+    throw createError({ statusCode: 429, message: 'Trop de requêtes. Attendez 1 minute.' })
+  }
+  requests.set(ip, now)
+
   const body = await readBody(event)
-  const { items, total, shipping_address, email, first_name } = body
+  const { items, total, shipping_address, first_name } = body
+  const email = user.email
 
   if (!items?.length || !total || !shipping_address || !email) {
     throw createError({ statusCode: 400, message: 'Données manquantes.' })
@@ -24,10 +40,10 @@ export default defineEventHandler(async (event) => {
         <span style="color:#aaaaaa;font-size:12px;letter-spacing:0.08em;">${escape(item.weight)}</span>
       </td>
       <td style="padding:14px 0;border-bottom:1px solid #1e1e1e;color:#aaaaaa;font-size:14px;text-align:center;">
-        × ${item.quantity}
+        × ${Number(item.quantity)}
       </td>
       <td style="padding:14px 0;border-bottom:1px solid #1e1e1e;color:#fafafa;font-size:14px;text-align:right;white-space:nowrap;">
-        ${(item.price * item.quantity).toFixed(2).replace('.', ',')} €
+        ${(Number(item.price) * Number(item.quantity)).toFixed(2).replace('.', ',')} €
       </td>
     </tr>
   `).join('')
