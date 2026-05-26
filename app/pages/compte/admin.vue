@@ -366,7 +366,8 @@ const updateStatus = async (order) => {
   }
 
   try {
-    await $fetch(`/api/admin/orders/${order.id}`, { method: 'PATCH', body: { status: newStatus } })
+    const body = { status: newStatus, ...(newStatus === 'delivered' ? { send_email: true } : {}) }
+    await $fetch(`/api/admin/orders/${order.id}`, { method: 'PATCH', body })
     order.status = newStatus
   } catch (e) {
     console.error('Erreur statut:', e)
