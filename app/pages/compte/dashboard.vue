@@ -67,6 +67,15 @@
                   <span class="detail-qty">× {{ item.quantity }}</span>
                   <span class="detail-price">{{ (item.price * item.quantity).toFixed(2).replace('.', ',') }} €</span>
                 </div>
+                <div v-if="order.shipping_address" class="order-shipping">
+                  <p class="shipping-label">Livraison</p>
+                  <p class="shipping-addr">
+                    {{ order.shipping_address.first_name }} {{ order.shipping_address.last_name }}<br>
+                    {{ order.shipping_address.line1 }}<span v-if="order.shipping_address.line2">, {{ order.shipping_address.line2 }}</span><br>
+                    {{ order.shipping_address.postal_code }} {{ order.shipping_address.city }}<br>
+                    {{ order.shipping_address.phone }}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -304,6 +313,27 @@ onMounted(async () => {
 .detail-price {
   color: var(--color-text);
   font-family: var(--font-display);
+}
+
+.order-shipping {
+  padding: 12px;
+  background: var(--color-surface);
+  border-left: 2px solid var(--gold);
+  margin-top: 4px;
+}
+
+.shipping-label {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.shipping-addr {
+  font-size: var(--fs-small);
+  color: var(--color-text-muted);
+  line-height: 1.7;
 }
 
 .order-row--header {

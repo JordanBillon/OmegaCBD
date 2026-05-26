@@ -77,6 +77,56 @@
     </div>
   </Transition>
 
+  <Transition name="modal">
+    <div v-if="showAddressForm" class="modal-overlay" @click.self="showAddressForm = false">
+      <div class="modal-card modal-card--large">
+        <p class="modal-title">Adresse de livraison</p>
+        <p class="modal-sub">France métropolitaine uniquement</p>
+        <div class="address-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Prénom *</label>
+              <input v-model="address.first_name" class="form-input" type="text" autocomplete="given-name" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nom *</label>
+              <input v-model="address.last_name" class="form-input" type="text" autocomplete="family-name" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Adresse *</label>
+            <input v-model="address.line1" class="form-input" type="text" autocomplete="address-line1" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Complément <span class="form-optional">(optionnel)</span></label>
+            <input v-model="address.line2" class="form-input" type="text" autocomplete="address-line2" />
+          </div>
+          <div class="form-row">
+            <div class="form-group form-group--sm">
+              <label class="form-label">Code postal *</label>
+              <input v-model="address.postal_code" class="form-input" type="text" maxlength="5" autocomplete="postal-code" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Ville *</label>
+              <input v-model="address.city" class="form-input" type="text" autocomplete="address-level2" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Téléphone *</label>
+            <input v-model="address.phone" class="form-input" type="tel" autocomplete="tel" />
+          </div>
+          <p v-if="addressError" class="order-error">{{ addressError }}</p>
+        </div>
+        <div class="modal-actions modal-actions--top">
+          <button class="modal-btn modal-btn--cancel" @click="showAddressForm = false">Annuler</button>
+          <button class="modal-btn modal-btn--confirm" :disabled="loading" @click="confirmOrder">
+            {{ loading ? 'En cours…' : 'Confirmer la commande' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Transition>
+
 </template>
 
 <script setup>
@@ -88,23 +138,44 @@ const user = useSupabaseUser()
 const loading = ref(false)
 const orderError = ref('')
 
+const showAddressForm = ref(false)
+const addressError = ref('')
+const address = reactive({
+  first_name: '', last_name: '', line1: '', line2: '', postal_code: '', city: '', phone: ''
+})
+
 const commander = async () => {
   if (!user.value) return navigateTo('/compte/connexion')
-  loading.value = true
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) return navigateTo('/compte/connexion')
+  addressError.value = ''
   orderError.value = ''
+  showAddressForm.value = true
+}
+
+const confirmOrder = async () => {
+  addressError.value = ''
+  if (!address.first_name || !address.last_name || !address.line1 || !address.postal_code || !address.city || !address.phone) {
+    addressError.value = 'Veuillez remplir tous les champs obligatoires.'
+    return
+  }
+  loading.value = true
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) return navigateTo('/compte/connexion')
   const { error } = await supabase.from('orders').insert({
     user_id: session.user.id,
     items: items.value,
-    total: total.value
+    total: total.value,
+    shipping_address: { ...address }
   })
   loading.value = false
   if (error) {
     orderError.value = 'Une erreur est survenue. Veuillez réessayer.'
+    showAddressForm.value = false
     return
   }
   clear()
+  showAddressForm.value = false
   navigateTo('/compte/dashboard')
 }
 
@@ -458,6 +529,69 @@ const askRemoveItem = (item) => openModal(
   background: #e53e3e;
   border-color: #e53e3e;
   color: #fff;
+}
+
+.modal-card--large {
+  max-width: 520px;
+  text-align: left;
+}
+
+.address-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group--sm {
+  max-width: 130px;
+}
+
+.form-label {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.form-optional {
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}
+
+.form-input {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  border-color: var(--gold);
+}
+
+.modal-actions--top {
+  margin-top: 8px;
 }
 
 .modal-enter-active,
