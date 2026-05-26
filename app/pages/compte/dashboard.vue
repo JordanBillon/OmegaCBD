@@ -13,8 +13,12 @@
       <div class="dashboard-grid">
 
         <div class="dashboard-card">
-          <h2 class="dashboard-card__title">Mes informations</h2>
-          <div class="dashboard-info">
+          <div class="dashboard-card__header">
+            <h2 class="dashboard-card__title">Mes informations</h2>
+            <button v-if="!editMode" class="edit-btn" @click="startEdit">Modifier</button>
+          </div>
+
+          <div v-if="!editMode" class="dashboard-info">
             <div class="info-row">
               <span class="info-label">Email</span>
               <span class="info-value">{{ user?.email }}</span>
@@ -29,11 +33,34 @@
             </div>
             <div class="info-row">
               <span class="info-label">Téléphone</span>
-              <span class="info-value">{{ profile?.phone || '—' }}</span>
+              <span class="info-value">{{ formatPhone(profile?.phone) }}</span>
             </div>
             <div class="info-row">
               <span class="info-label">Membre depuis</span>
               <span class="info-value">{{ formatDate(profile?.created_at) }}</span>
+            </div>
+          </div>
+
+          <div v-else class="edit-form">
+            <div class="edit-field">
+              <label class="edit-label">Prénom</label>
+              <input v-model="editForm.first_name" class="edit-input" type="text" placeholder="Prénom" maxlength="50" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label">Nom</label>
+              <input v-model="editForm.last_name" class="edit-input" type="text" placeholder="Nom" maxlength="50" />
+            </div>
+            <div class="edit-field">
+              <label class="edit-label">Téléphone</label>
+              <input v-model="editForm.phone" class="edit-input" type="tel" placeholder="06 12 34 56 78" maxlength="20" />
+            </div>
+            <p v-if="editError" class="edit-error">{{ editError }}</p>
+            <p v-if="editSuccess" class="edit-success">Profil mis à jour.</p>
+            <div class="edit-actions">
+              <button class="edit-cancel" :disabled="editSuccess" @click="cancelEdit">Annuler</button>
+              <button class="edit-save" :disabled="savingProfile" @click="saveProfile">
+                {{ savingProfile ? 'Enregistrement…' : 'Enregistrer' }}
+              </button>
             </div>
           </div>
         </div>
@@ -113,6 +140,60 @@ const orders = ref([])
 const expandedOrder = ref(null)
 const loadingOrders = ref(true)
 
+const editMode = ref(false)
+const savingProfile = ref(false)
+const editError = ref('')
+const editSuccess = ref(false)
+const editForm = reactive({ first_name: '', last_name: '', phone: '' })
+
+const startEdit = () => {
+  editForm.first_name = profile.value?.first_name || ''
+  editForm.last_name = profile.value?.last_name || ''
+  editForm.phone = profile.value?.phone || ''
+  editError.value = ''
+  editSuccess.value = false
+  editMode.value = true
+}
+
+const cancelEdit = () => {
+  editMode.value = false
+  editError.value = ''
+  editSuccess.value = false
+}
+
+const saveProfile = async () => {
+  editError.value = ''
+  editSuccess.value = false
+
+  if (!editForm.first_name.trim() || !editForm.last_name.trim()) {
+    editError.value = 'Le prénom et le nom sont obligatoires.'
+    return
+  }
+  if (editForm.phone && !/^(0|\+33)[1-9]\d{8}$/.test(editForm.phone.replace(/[\s.\-]/g, ''))) {
+    editError.value = 'Numéro de téléphone invalide (ex : 06 12 34 56 78).'
+    return
+  }
+
+  savingProfile.value = true
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  const { error } = await supabase.from('profiles').update({
+    first_name: editForm.first_name.trim(),
+    last_name: editForm.last_name.trim(),
+    phone: editForm.phone.replace(/[\s.\-]/g, '') || null,
+  }).eq('id', currentUser.id)
+  savingProfile.value = false
+
+  if (error) {
+    editError.value = 'Une erreur est survenue. Réessayez.'
+    return
+  }
+
+  const cleanedPhone = editForm.phone.replace(/[\s.\-]/g, '') || null
+  profile.value = { ...profile.value, first_name: editForm.first_name.trim(), last_name: editForm.last_name.trim(), phone: cleanedPhone }
+  editSuccess.value = true
+  setTimeout(() => { editMode.value = false; editSuccess.value = false }, 1200)
+}
+
 const toggleOrder = (id) => {
   expandedOrder.value = expandedOrder.value === id ? null : id
 }
@@ -120,6 +201,18 @@ const toggleOrder = (id) => {
 const formatDate = (date) => {
   if (!date) return '—'
   return new Date(date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })
+}
+
+const formatPhone = (phone) => {
+  if (!phone) return '—'
+  const cleaned = phone.replace(/[\s.\-]/g, '')
+  if (/^\+33[1-9]\d{8}$/.test(cleaned)) {
+    return cleaned.replace(/^\+33/, '0').replace(/(\d{2})(?=\d)/g, '$1 ').trim()
+  }
+  if (/^0[1-9]\d{8}$/.test(cleaned)) {
+    return cleaned.replace(/(\d{2})(?=\d)/g, '$1 ').trim()
+  }
+  return phone
 }
 
 const logout = async () => {
@@ -199,15 +292,124 @@ onMounted(async () => {
   transition: background var(--transition);
 }
 
+.dashboard-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
 .dashboard-card__title {
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 400;
   color: var(--color-text);
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
 }
+
+.edit-btn {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: opacity var(--transition);
+}
+
+.edit-btn:hover { opacity: 0.7; }
+
+.edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.edit-label {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.edit-input {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  padding: 10px 14px;
+  outline: none;
+  transition: border-color var(--transition);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.edit-input:focus { border-color: var(--gold); }
+
+.edit-error {
+  font-size: var(--fs-small);
+  color: #e53e3e;
+  margin: 0;
+}
+
+.edit-success {
+  font-size: var(--fs-small);
+  color: #48bb78;
+  margin: 0;
+}
+
+.edit-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.edit-cancel {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.edit-cancel:hover:not(:disabled) { border-color: var(--color-text-muted); color: var(--color-text); }
+.edit-cancel:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.edit-save {
+  flex: 2;
+  padding: 10px;
+  border: 1px solid var(--gold);
+  background: var(--gold);
+  color: #0a0a0a;
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.edit-save:hover:not(:disabled) { background: transparent; color: var(--gold); }
+.edit-save:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .info-row {
   display: flex;
