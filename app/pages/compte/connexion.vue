@@ -37,6 +37,7 @@
           <div class="form-group">
             <label class="form-label">Mot de passe</label>
             <input v-model="password" type="password" class="form-input" placeholder="••••••••" required minlength="8" />
+            <p v-if="!isLogin" class="form-hint">8 caractères minimum</p>
           </div>
 
           <div v-if="!isLogin" class="form-group">
@@ -298,6 +299,8 @@ const handleReset = async () => {
 }
 
 .form-input {
+  width: 100%;
+  box-sizing: border-box;
   padding: 12px 14px;
   border: 1px solid var(--color-border);
   background: var(--color-surface);

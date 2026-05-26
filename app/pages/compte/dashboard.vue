@@ -120,6 +120,38 @@
 
       </div>
 
+      <div class="dashboard-card security-card">
+        <div class="dashboard-card__header">
+          <h2 class="dashboard-card__title">Mot de passe</h2>
+          <button v-if="!pwdMode" class="edit-btn" @click="pwdMode = true">Modifier</button>
+        </div>
+
+        <p v-if="!pwdMode" class="pwd-placeholder">••••••••••••</p>
+
+        <div v-else class="edit-form">
+          <div class="edit-field">
+            <label class="edit-label">Mot de passe actuel</label>
+            <input v-model="pwdForm.current" class="edit-input" type="password" placeholder="Mot de passe actuel" maxlength="128" autocomplete="current-password" />
+          </div>
+          <div class="edit-field">
+            <label class="edit-label">Nouveau mot de passe</label>
+            <input v-model="pwdForm.next" class="edit-input" type="password" placeholder="8 caractères minimum" maxlength="128" autocomplete="new-password" />
+          </div>
+          <div class="edit-field">
+            <label class="edit-label">Confirmer le nouveau mot de passe</label>
+            <input v-model="pwdForm.confirm" class="edit-input" type="password" placeholder="Répétez le nouveau mot de passe" maxlength="128" autocomplete="new-password" />
+          </div>
+          <p v-if="pwdError" class="edit-error">{{ pwdError }}</p>
+          <p v-if="pwdSuccess" class="edit-success">Mot de passe mis à jour.</p>
+          <div class="edit-actions">
+            <button class="edit-cancel" :disabled="pwdSuccess" @click="cancelPwd">Annuler</button>
+            <button class="edit-save" :disabled="savingPwd" @click="savePassword">
+              {{ savingPwd ? 'Vérification…' : 'Enregistrer' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div class="logout-wrapper">
         <button class="logout-btn" @click="logout">Se déconnecter</button>
       </div>
@@ -192,6 +224,61 @@ const saveProfile = async () => {
   profile.value = { ...profile.value, first_name: editForm.first_name.trim(), last_name: editForm.last_name.trim(), phone: cleanedPhone }
   editSuccess.value = true
   setTimeout(() => { editMode.value = false; editSuccess.value = false }, 1200)
+}
+
+const pwdMode = ref(false)
+const savingPwd = ref(false)
+const pwdError = ref('')
+const pwdSuccess = ref(false)
+const pwdForm = reactive({ current: '', next: '', confirm: '' })
+
+const cancelPwd = () => {
+  pwdMode.value = false
+  pwdError.value = ''
+  pwdSuccess.value = false
+  pwdForm.current = ''
+  pwdForm.next = ''
+  pwdForm.confirm = ''
+}
+
+const savePassword = async () => {
+  pwdError.value = ''
+  pwdSuccess.value = false
+
+  if (!pwdForm.current || !pwdForm.next || !pwdForm.confirm) {
+    pwdError.value = 'Tous les champs sont obligatoires.'
+    return
+  }
+  if (pwdForm.next.length < 8) {
+    pwdError.value = 'Le nouveau mot de passe doit contenir au moins 8 caractères.'
+    return
+  }
+  if (pwdForm.next !== pwdForm.confirm) {
+    pwdError.value = 'Les mots de passe ne correspondent pas.'
+    return
+  }
+
+  savingPwd.value = true
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.value.email,
+    password: pwdForm.current,
+  })
+  if (signInError) {
+    savingPwd.value = false
+    pwdError.value = 'Mot de passe actuel incorrect.'
+    return
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({ password: pwdForm.next })
+  savingPwd.value = false
+
+  if (updateError) {
+    pwdError.value = 'Une erreur est survenue. Réessayez.'
+    return
+  }
+
+  pwdSuccess.value = true
+  setTimeout(() => cancelPwd(), 1200)
 }
 
 const toggleOrder = (id) => {
@@ -582,6 +669,18 @@ onMounted(async () => {
 .order-status.pending { color: var(--gold); }
 .order-status.cancelled { color: #e53e3e; }
 .order-status.shipped { color: #4299e1; }
+
+.security-card {
+  margin-bottom: 48px;
+  max-width: 420px;
+}
+
+.pwd-placeholder {
+  font-size: var(--fs-body);
+  color: var(--color-text-subtle);
+  letter-spacing: 0.2em;
+  margin: 0;
+}
 
 .logout-wrapper {
   display: flex;
