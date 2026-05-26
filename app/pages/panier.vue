@@ -115,6 +115,12 @@
             <label class="form-label">Téléphone *</label>
             <input v-model="address.phone" class="form-input" type="tel" autocomplete="tel" />
           </div>
+          <label class="form-check">
+            <input type="checkbox" v-model="saveAddress" class="check-input" />
+            <span class="check-label">
+              {{ hasSavedAddress ? 'Mettre à jour mon adresse enregistrée' : 'Mémoriser cette adresse pour mes prochaines commandes' }}
+            </span>
+          </label>
           <p v-if="addressError" class="order-error">{{ addressError }}</p>
         </div>
         <div class="modal-actions modal-actions--top">
@@ -140,6 +146,8 @@ const orderError = ref('')
 
 const showAddressForm = ref(false)
 const addressError = ref('')
+const saveAddress = ref(true)
+const hasSavedAddress = ref(false)
 const address = reactive({
   first_name: '', last_name: '', line1: '', line2: '', postal_code: '', city: '', phone: ''
 })
@@ -150,6 +158,22 @@ const commander = async () => {
   if (!session) return navigateTo('/compte/connexion')
   addressError.value = ''
   orderError.value = ''
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('shipping_address')
+    .eq('id', session.user.id)
+    .single()
+
+  if (profile?.shipping_address) {
+    Object.assign(address, profile.shipping_address)
+    hasSavedAddress.value = true
+    saveAddress.value = true
+  } else {
+    hasSavedAddress.value = false
+    saveAddress.value = true
+  }
+
   showAddressForm.value = true
 }
 
@@ -162,12 +186,18 @@ const confirmOrder = async () => {
   loading.value = true
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) return navigateTo('/compte/connexion')
+
   const { error } = await supabase.from('orders').insert({
     user_id: session.user.id,
     items: items.value,
     total: total.value,
     shipping_address: { ...address }
   })
+
+  if (saveAddress.value) {
+    await supabase.from('profiles').update({ shipping_address: { ...address } }).eq('id', session.user.id)
+  }
+
   loading.value = false
   if (error) {
     orderError.value = 'Une erreur est survenue. Veuillez réessayer.'
@@ -588,6 +618,27 @@ const askRemoveItem = (item) => openModal(
 
 .form-input:focus {
   border-color: var(--gold);
+}
+
+.form-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.check-input {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  accent-color: var(--gold);
+  cursor: pointer;
+}
+
+.check-label {
+  font-size: var(--fs-small);
+  color: var(--color-text-muted);
+  cursor: pointer;
 }
 
 .modal-actions--top {
