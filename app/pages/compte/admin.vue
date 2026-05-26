@@ -5,13 +5,16 @@
       <p class="page-hero__eyebrow">OMEGACBD</p>
       <h1 class="page-hero__title">Administration</h1>
       <div class="page-hero__divider"></div>
-      <p class="page-hero__sub">{{ orders.length }} commande{{ orders.length !== 1 ? 's' : '' }}<span v-if="pendingCount > 0" class="hero-pending"> · {{ pendingCount }} en attente</span> · {{ promos.length }} code{{ promos.length !== 1 ? 's' : '' }} promo</p>
+      <p class="page-hero__sub">{{ activeOrders.length }} commande{{ activeOrders.length !== 1 ? 's' : '' }}<span v-if="pendingCount > 0" class="hero-pending"> · {{ pendingCount }} en attente</span> · {{ historicalOrders.length }} livré{{ historicalOrders.length !== 1 ? 'es' : 'e' }} · {{ promos.length }} code{{ promos.length !== 1 ? 's' : '' }} promo</p>
     </div>
 
     <div class="admin-tabs-bar">
       <div class="container">
         <button class="admin-tab" :class="{ active: tab === 'orders' }" @click="tab = 'orders'">
-          Commandes <span class="tab-count">{{ orders.length }}</span>
+          Commandes <span class="tab-count">{{ activeOrders.length }}</span>
+        </button>
+        <button class="admin-tab" :class="{ active: tab === 'history' }" @click="tab = 'history'">
+          Historique <span class="tab-count">{{ historicalOrders.length }}</span>
         </button>
         <button class="admin-tab" :class="{ active: tab === 'promos' }" @click="tab = 'promos'">
           Codes promo <span class="tab-count">{{ promos.length }}</span>
@@ -22,10 +25,11 @@
     <!-- COMMANDES -->
     <div v-if="tab === 'orders'" class="admin-section container">
       <div v-if="loadingOrders" class="admin-loading">Chargement…</div>
-      <div v-else-if="orders.length === 0" class="admin-empty">Aucune commande pour le moment.</div>
+      <div v-else-if="activeOrders.length === 0" class="admin-empty">Aucune commande active pour le moment.</div>
       <div v-else class="orders-wrap">
         <div class="orders-table">
           <div class="orow orow--head">
+
             <span>Référence</span>
             <span>Client</span>
             <span>Statut</span>
@@ -34,16 +38,16 @@
             <span>N° de suivi</span>
             <span></span>
           </div>
-          <div v-for="order in orders" :key="order.id" class="order-item">
+          <div v-for="order in activeOrders" :key="order.id" class="order-item">
             <div class="orow orow--data" @click="toggleOrder(order.id)">
               <span class="col-ref">#{{ order.id.slice(0, 8) }}</span>
               <span class="col-client">{{ order.shipping_address?.first_name }} {{ order.shipping_address?.last_name }}</span>
               <span class="col-status" @click.stop>
                 <select
+                  v-model="orderStatuses[order.id]"
                   class="status-select"
-                  :class="`s-${order.status}`"
-                  :value="order.status"
-                  @change="updateStatus(order, $event.target.value)"
+                  :class="`s-${orderStatuses[order.id]}`"
+                  @change="updateStatus(order)"
                 >
                   <option value="pending">En attente</option>
                   <option value="paid">Payé</option>
@@ -71,6 +75,81 @@
               <span class="col-chev" :class="{ open: expandedOrder === order.id }">›</span>
             </div>
 
+            <div v-if="expandedOrder === order.id" class="order-details">
+              <div v-for="item in order.items" :key="`${item.productId}-${item.weight}`" class="detail-row">
+                <span class="detail-name">{{ item.name }}</span>
+                <span class="detail-weight">{{ item.weight }}</span>
+                <span class="detail-qty">× {{ item.quantity }}</span>
+                <span class="detail-price">{{ (item.price * item.quantity).toFixed(2).replace('.', ',') }} €</span>
+              </div>
+              <div v-if="order.promo_code && Number(order.discount) > 0" class="detail-promo">
+                <span>Code {{ order.promo_code }}</span>
+                <span class="detail-promo__saving">− {{ Number(order.discount).toFixed(2).replace('.', ',') }} €</span>
+              </div>
+              <div v-if="order.shipping_address" class="order-address">
+                <p class="address-title">Livraison</p>
+                <p class="address-line">{{ order.shipping_address.first_name }} {{ order.shipping_address.last_name }}</p>
+                <p class="address-line">{{ order.shipping_address.line1 }}<template v-if="order.shipping_address.line2">, {{ order.shipping_address.line2 }}</template></p>
+                <p class="address-line">{{ order.shipping_address.postal_code }} {{ order.shipping_address.city }}</p>
+                <p class="address-line">{{ order.shipping_address.phone }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTORIQUE -->
+    <div v-if="tab === 'history'" class="admin-section container">
+      <div v-if="loadingOrders" class="admin-loading">Chargement…</div>
+      <div v-else-if="historicalOrders.length === 0" class="admin-empty">Aucune commande livrée pour le moment.</div>
+      <div v-else class="orders-wrap">
+        <div class="orders-table">
+          <div class="orow orow--head">
+            <span>Référence</span>
+            <span>Client</span>
+            <span>Statut</span>
+            <span>Total</span>
+            <span>Date</span>
+            <span>N° de suivi</span>
+            <span></span>
+          </div>
+          <div v-for="order in historicalOrders" :key="order.id" class="order-item">
+            <div class="orow orow--data" @click="toggleOrder(order.id)">
+              <span class="col-ref">#{{ order.id.slice(0, 8) }}</span>
+              <span class="col-client">{{ order.shipping_address?.first_name }} {{ order.shipping_address?.last_name }}</span>
+              <span class="col-status" @click.stop>
+                <select
+                  v-model="orderStatuses[order.id]"
+                  class="status-select"
+                  :class="`s-${orderStatuses[order.id]}`"
+                  @change="updateStatus(order)"
+                >
+                  <option value="pending">En attente</option>
+                  <option value="paid">Payé</option>
+                  <option value="shipped">Expédié</option>
+                  <option value="delivered">Livré</option>
+                  <option value="cancelled">Annulé</option>
+                </select>
+              </span>
+              <span class="col-total">{{ Number(order.total).toFixed(2).replace('.', ',') }} €</span>
+              <span class="col-date">{{ formatDate(order.created_at) }}</span>
+              <span class="col-tracking" @click.stop>
+                <div class="tracking-row">
+                  <input
+                    v-model="trackingInputs[order.id]"
+                    class="tracking-input"
+                    type="text"
+                    placeholder="Ajouter…"
+                    @keyup.enter="saveTracking(order)"
+                  />
+                  <button class="tracking-save" :disabled="savingTracking[order.id]" @click="saveTracking(order)">
+                    {{ savingTracking[order.id] ? '…' : 'OK' }}
+                  </button>
+                </div>
+              </span>
+              <span class="col-chev" :class="{ open: expandedOrder === order.id }">›</span>
+            </div>
             <div v-if="expandedOrder === order.id" class="order-details">
               <div v-for="item in order.items" :key="`${item.productId}-${item.weight}`" class="detail-row">
                 <span class="detail-name">{{ item.name }}</span>
@@ -188,7 +267,10 @@ definePageMeta({ middleware: 'admin' })
 
 const tab = ref('orders')
 
+const activeOrders = computed(() => orders.value.filter(o => o.status !== 'delivered'))
+const historicalOrders = computed(() => orders.value.filter(o => o.status === 'delivered'))
 const pendingCount = computed(() => orders.value.filter(o => o.status === 'pending').length)
+const orderStatuses = reactive({})
 
 const orders = ref([])
 const promos = ref([])
@@ -215,13 +297,28 @@ const toggleOrder = (id) => {
   expandedOrder.value = expandedOrder.value === id ? null : id
 }
 
-const updateStatus = async (order, status) => {
+const updateStatus = async (order) => {
+  const newStatus = orderStatuses[order.id]
   const prev = order.status
-  order.status = status
+
+  if (newStatus === 'delivered') {
+    if (!confirm(`Passer la commande #${order.id.slice(0, 8)} en historique ?`)) {
+      orderStatuses[order.id] = prev
+      return
+    }
+  } else if (prev === 'delivered') {
+    if (!confirm(`Remettre la commande #${order.id.slice(0, 8)} dans les commandes actives ?`)) {
+      orderStatuses[order.id] = prev
+      return
+    }
+  }
+
   try {
-    await $fetch(`/api/admin/orders/${order.id}`, { method: 'PATCH', body: { status } })
-  } catch {
-    order.status = prev
+    await $fetch(`/api/admin/orders/${order.id}`, { method: 'PATCH', body: { status: newStatus } })
+    order.status = newStatus
+  } catch (e) {
+    console.error('Erreur statut:', e)
+    orderStatuses[order.id] = prev
   }
 }
 
@@ -304,6 +401,7 @@ onMounted(async () => {
     promos.value = p || []
     for (const order of orders.value) {
       trackingInputs.value[order.id] = order.tracking_number || ''
+      orderStatuses[order.id] = order.status
     }
   } catch (e) {
     if (e?.status === 401 || e?.status === 403) {

@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     updates.status = body.status
   }
   if (body.tracking_number !== undefined) {
-    updates.tracking_number = String(body.tracking_number).slice(0, 100) || null
+    updates.tracking_number = body.tracking_number ? String(body.tracking_number).slice(0, 100) : null
   }
   if (Object.keys(updates).length === 0) {
     throw createError({ statusCode: 400, message: 'Aucune modification.' })
