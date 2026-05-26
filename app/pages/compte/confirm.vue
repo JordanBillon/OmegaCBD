@@ -15,7 +15,12 @@ const message = ref('Vérification en cours...')
 
 onMounted(async () => {
   await new Promise(r => setTimeout(r, 1500))
-  message.value = 'Compte confirmé ! Redirection...'
+  const hash = window.location.hash
+  if (hash.includes('type=email_change')) {
+    message.value = 'Adresse email mise à jour ! Redirection...'
+  } else {
+    message.value = 'Compte confirmé ! Redirection...'
+  }
   setTimeout(() => router.push('/compte/dashboard'), 1000)
 })
 </script>

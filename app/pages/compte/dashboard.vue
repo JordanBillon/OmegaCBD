@@ -19,22 +19,80 @@
           </div>
 
           <div v-if="!editMode" class="dashboard-info">
-            <div class="info-row">
+            <div v-if="!emailInlineMode" class="info-row">
               <span class="info-label">Email</span>
-              <span class="info-value">{{ user?.email }}</span>
+              <span class="info-value info-value--email">
+                {{ user?.email }}
+                <button class="pencil-btn" aria-label="Modifier l'email" @click="startEmailInline">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+              </span>
+            </div>
+            <div v-else class="email-inline-wrap">
+              <p class="email-inline-title">Nouvelle adresse email</p>
+              <div class="edit-field">
+                <input v-model="emailForm.new_email" class="edit-input" type="email" placeholder="nouvelle@email.com" maxlength="254" autocomplete="email" autofocus />
+              </div>
+              <div class="edit-field">
+                <input v-model="emailForm.email_password" class="edit-input" type="password" placeholder="Confirmez avec votre mot de passe" maxlength="128" autocomplete="current-password" />
+              </div>
+              <p v-if="emailInlineError" class="edit-error">{{ emailInlineError }}</p>
+              <p v-if="emailInlineSuccess" class="edit-success">Lien de confirmation envoyé à votre nouvelle adresse.</p>
+              <div class="edit-actions">
+                <button class="edit-cancel" :disabled="emailInlineSuccess" @click="cancelEmailInline">Annuler</button>
+                <button class="edit-save" :disabled="savingEmail || emailInlineSuccess" @click="saveEmailInline">
+                  {{ savingEmail ? 'Envoi…' : 'Envoyer le lien' }}
+                </button>
+              </div>
             </div>
             <div class="info-row">
               <span class="info-label">Prénom</span>
-              <span class="info-value">{{ profile?.first_name || '—' }}</span>
+              <span v-if="inlineField !== 'first_name'" class="info-value info-value--email">
+                {{ profile?.first_name || '—' }}
+                <button class="pencil-btn" aria-label="Modifier le prénom" @click="startInline('first_name')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+              </span>
+              <div v-else class="inline-field">
+                <input v-model="inlineValue" class="inline-input" autofocus @keyup.enter="saveInline" @keyup.escape="cancelInline" />
+                <button class="inline-ok" :disabled="savingInline" @click="saveInline">{{ savingInline ? '…' : '✓' }}</button>
+                <button class="inline-x" @click="cancelInline">✕</button>
+              </div>
             </div>
+            <p v-if="inlineField === 'first_name' && inlineError" class="inline-error">{{ inlineError }}</p>
+
             <div class="info-row">
               <span class="info-label">Nom</span>
-              <span class="info-value">{{ profile?.last_name || '—' }}</span>
+              <span v-if="inlineField !== 'last_name'" class="info-value info-value--email">
+                {{ profile?.last_name || '—' }}
+                <button class="pencil-btn" aria-label="Modifier le nom" @click="startInline('last_name')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+              </span>
+              <div v-else class="inline-field">
+                <input v-model="inlineValue" class="inline-input" autofocus @keyup.enter="saveInline" @keyup.escape="cancelInline" />
+                <button class="inline-ok" :disabled="savingInline" @click="saveInline">{{ savingInline ? '…' : '✓' }}</button>
+                <button class="inline-x" @click="cancelInline">✕</button>
+              </div>
             </div>
+            <p v-if="inlineField === 'last_name' && inlineError" class="inline-error">{{ inlineError }}</p>
+
             <div class="info-row">
               <span class="info-label">Téléphone</span>
-              <span class="info-value">{{ formatPhone(profile?.phone) }}</span>
+              <span v-if="inlineField !== 'phone'" class="info-value info-value--email">
+                {{ formatPhone(profile?.phone) }}
+                <button class="pencil-btn" aria-label="Modifier le téléphone" @click="startInline('phone')">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+              </span>
+              <div v-else class="inline-field">
+                <input v-model="inlineValue" class="inline-input" type="tel" autofocus @keyup.enter="saveInline" @keyup.escape="cancelInline" />
+                <button class="inline-ok" :disabled="savingInline" @click="saveInline">{{ savingInline ? '…' : '✓' }}</button>
+                <button class="inline-x" @click="cancelInline">✕</button>
+              </div>
             </div>
+            <p v-if="inlineField === 'phone' && inlineError" class="inline-error">{{ inlineError }}</p>
+
             <div class="info-row">
               <span class="info-label">Membre depuis</span>
               <span class="info-value">{{ formatDate(profile?.created_at) }}</span>
@@ -186,12 +244,66 @@ const editError = ref('')
 const editSuccess = ref(false)
 const editForm = reactive({ first_name: '', last_name: '', phone: '' })
 
+const inlineField = ref(null)
+const inlineValue = ref('')
+const savingInline = ref(false)
+const inlineError = ref('')
+
+const startInline = (field) => {
+  const values = {
+    first_name: profile.value?.first_name || '',
+    last_name: profile.value?.last_name || '',
+    phone: formatPhone(profile.value?.phone) || '',
+  }
+  inlineField.value = field
+  inlineValue.value = values[field]
+  inlineError.value = ''
+  emailInlineMode.value = false
+}
+
+const cancelInline = () => {
+  inlineField.value = null
+  inlineValue.value = ''
+  inlineError.value = ''
+}
+
+const saveInline = async () => {
+  inlineError.value = ''
+  const field = inlineField.value
+  const val = inlineValue.value.trim()
+
+  if (field !== 'phone' && !val) {
+    inlineError.value = 'Ce champ ne peut pas être vide.'
+    return
+  }
+  if (field === 'phone' && val && !/^(0|\+33)[1-9]\d{8}$/.test(val.replace(/[\s.\-]/g, ''))) {
+    inlineError.value = 'Numéro invalide (ex : 06 12 34 56 78).'
+    return
+  }
+
+  savingInline.value = true
+  const { data: { user: currentUser } } = await supabase.auth.getUser()
+  const updateData = field === 'phone'
+    ? { phone: val.replace(/[\s.\-]/g, '') || null }
+    : { [field]: val }
+
+  const { error } = await supabase.from('profiles').update(updateData).eq('id', currentUser.id)
+  savingInline.value = false
+
+  if (error) { inlineError.value = 'Erreur. Réessayez.'; return }
+
+  profile.value = { ...profile.value, ...updateData }
+  cancelInline()
+}
+
 const startEdit = () => {
   editForm.first_name = profile.value?.first_name || ''
   editForm.last_name = profile.value?.last_name || ''
   editForm.phone = profile.value?.phone || ''
   editError.value = ''
   editSuccess.value = false
+  emailInlineMode.value = false
+  cancelInline()
   editMode.value = true
 }
 
@@ -232,6 +344,68 @@ const saveProfile = async () => {
   profile.value = { ...profile.value, first_name: editForm.first_name.trim(), last_name: editForm.last_name.trim(), phone: cleanedPhone }
   editSuccess.value = true
   setTimeout(() => { editMode.value = false; editSuccess.value = false }, 1200)
+}
+
+const emailInlineMode = ref(false)
+const savingEmail = ref(false)
+const emailInlineError = ref('')
+const emailInlineSuccess = ref(false)
+const emailForm = reactive({ new_email: '', email_password: '' })
+
+const startEmailInline = () => {
+  emailForm.new_email = ''
+  emailForm.email_password = ''
+  emailInlineError.value = ''
+  emailInlineSuccess.value = false
+  emailInlineMode.value = true
+}
+
+const cancelEmailInline = () => {
+  emailInlineMode.value = false
+  emailInlineError.value = ''
+  emailInlineSuccess.value = false
+}
+
+const saveEmailInline = async () => {
+  emailInlineError.value = ''
+  emailInlineSuccess.value = false
+
+  const newEmail = emailForm.new_email.trim().toLowerCase()
+  if (!newEmail || !emailForm.email_password) {
+    emailInlineError.value = 'Tous les champs sont obligatoires.'
+    return
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+    emailInlineError.value = 'Adresse email invalide.'
+    return
+  }
+  if (newEmail === user.value?.email) {
+    emailInlineError.value = 'Cette adresse est déjà la vôtre.'
+    return
+  }
+
+  savingEmail.value = true
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: user.value.email,
+    password: emailForm.email_password,
+  })
+  if (signInError) {
+    savingEmail.value = false
+    emailInlineError.value = 'Mot de passe incorrect.'
+    return
+  }
+
+  const { error: updateError } = await supabase.auth.updateUser({ email: newEmail })
+  savingEmail.value = false
+
+  if (updateError) {
+    emailInlineError.value = 'Une erreur est survenue. Réessayez.'
+    return
+  }
+
+  emailInlineSuccess.value = true
+  emailForm.email_password = ''
+  setTimeout(() => cancelEmailInline(), 3000)
 }
 
 const pwdMode = ref(false)
@@ -456,6 +630,95 @@ onMounted(async () => {
 }
 
 .edit-input:focus { border-color: var(--gold); }
+
+.info-value--email {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pencil-btn {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--color-text-subtle);
+  display: flex;
+  align-items: center;
+  transition: color var(--transition);
+  flex-shrink: 0;
+}
+
+.pencil-btn:hover { color: var(--gold); }
+
+.inline-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inline-input {
+  background: var(--color-surface);
+  border: 1px solid var(--gold);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+  padding: 5px 10px;
+  outline: none;
+  width: 150px;
+  transition: border-color var(--transition);
+}
+
+.inline-ok {
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  color: #0a0a0a;
+  font-size: 12px;
+  padding: 5px 9px;
+  cursor: pointer;
+  transition: all var(--transition);
+  line-height: 1;
+}
+
+.inline-ok:hover:not(:disabled) { background: transparent; color: var(--gold); }
+.inline-ok:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.inline-x {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  padding: 5px 9px;
+  cursor: pointer;
+  transition: all var(--transition);
+  line-height: 1;
+}
+
+.inline-x:hover { border-color: #e53e3e; color: #e53e3e; }
+
+.inline-error {
+  font-size: var(--fs-tiny);
+  color: #e53e3e;
+  padding-bottom: 6px;
+  margin-top: -6px;
+  text-align: right;
+}
+
+.email-inline-wrap {
+  padding: 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.email-inline-title {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin: 0;
+}
 
 .edit-error {
   font-size: var(--fs-small);
