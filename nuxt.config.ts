@@ -20,7 +20,8 @@ export default defineNuxtConfig({
     }
   },
   runtimeConfig: {
-    resendApiKey: ''
+    resendApiKey: '',
+    adminEmail: ''
   },
   supabase: {
     redirectOptions: {

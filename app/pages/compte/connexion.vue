@@ -97,6 +97,11 @@ const loading = ref(false)
 const error = ref('')
 const success = ref('')
 
+watch(isLogin, () => {
+  error.value = ''
+  success.value = ''
+})
+
 const isAdult = (date) => {
   const birth = new Date(date)
   const today = new Date()
