@@ -5,7 +5,7 @@
       <p class="page-hero__eyebrow">OMEGACBD</p>
       <h1 class="page-hero__title">Administration</h1>
       <div class="page-hero__divider"></div>
-      <p class="page-hero__sub">{{ orders.length }} commande{{ orders.length !== 1 ? 's' : '' }} · {{ promos.length }} code{{ promos.length !== 1 ? 's' : '' }} promo</p>
+      <p class="page-hero__sub">{{ orders.length }} commande{{ orders.length !== 1 ? 's' : '' }}<span v-if="pendingCount > 0" class="hero-pending"> · {{ pendingCount }} en attente</span> · {{ promos.length }} code{{ promos.length !== 1 ? 's' : '' }} promo</p>
     </div>
 
     <div class="admin-tabs-bar">
@@ -146,6 +146,7 @@
           <span>Utilisations</span>
           <span>Expiration</span>
           <span>Statut</span>
+          <span></span>
         </div>
         <div v-for="promo in promos" :key="promo.id" class="prow" :class="{ inactive: !promo.active }">
           <span class="pcol-code">{{ promo.code }}</span>
@@ -163,6 +164,16 @@
               {{ promo.active ? 'Actif' : 'Inactif' }}
             </button>
           </span>
+          <span class="pcol-delete">
+            <button
+              class="delete-btn"
+              :disabled="deletingPromo[promo.id]"
+              @click="deletePromo(promo)"
+              aria-label="Supprimer ce code"
+            >
+              {{ deletingPromo[promo.id] ? '…' : '✕' }}
+            </button>
+          </span>
         </div>
       </div>
       <div v-else-if="!loadingPromos" class="admin-empty">Aucun code promo.</div>
@@ -177,6 +188,8 @@ definePageMeta({ middleware: 'admin' })
 
 const tab = ref('orders')
 
+const pendingCount = computed(() => orders.value.filter(o => o.status === 'pending').length)
+
 const orders = ref([])
 const promos = ref([])
 const loadingOrders = ref(true)
@@ -185,6 +198,7 @@ const expandedOrder = ref(null)
 const trackingInputs = ref({})
 const savingTracking = ref({})
 const togglingPromo = ref({})
+const deletingPromo = ref({})
 
 const createForm = reactive({
   code: '',
@@ -234,6 +248,19 @@ const togglePromo = async (promo) => {
     // silencieux
   } finally {
     togglingPromo.value[promo.id] = false
+  }
+}
+
+const deletePromo = async (promo) => {
+  if (!confirm(`Supprimer le code "${promo.code}" ?`)) return
+  deletingPromo.value[promo.id] = true
+  try {
+    await $fetch(`/api/admin/promos/${promo.id}`, { method: 'DELETE' })
+    promos.value = promos.value.filter(p => p.id !== promo.id)
+  } catch {
+    // silencieux
+  } finally {
+    deletingPromo.value[promo.id] = false
   }
 }
 
@@ -329,6 +356,10 @@ onMounted(async () => {
 .page-hero__sub {
   font-size: var(--fs-body);
   color: var(--color-text-muted);
+}
+
+.hero-pending {
+  color: var(--gold);
 }
 
 .admin-tabs-bar {
@@ -674,7 +705,7 @@ onMounted(async () => {
 
 .prow {
   display: grid;
-  grid-template-columns: 1fr 100px 90px 90px 110px 90px;
+  grid-template-columns: 1fr 100px 90px 90px 110px 90px 32px;
   gap: 12px;
   padding: 12px 16px;
   align-items: center;
@@ -727,6 +758,20 @@ onMounted(async () => {
 
 .toggle-btn:hover:not(:disabled) { opacity: 0.7; }
 .toggle-btn:disabled { cursor: not-allowed; opacity: 0.4; }
+
+.delete-btn {
+  background: none;
+  border: none;
+  color: var(--color-text-subtle);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 4px;
+  transition: color var(--transition);
+  line-height: 1;
+}
+
+.delete-btn:hover:not(:disabled) { color: #e53e3e; }
+.delete-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 @media (max-width: 900px) {
   .create-form {
