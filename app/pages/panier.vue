@@ -80,6 +80,7 @@
   <Transition name="modal">
     <div v-if="showAddressForm" class="modal-overlay" @click.self="closeAddressForm">
       <div class="modal-card modal-card--large">
+        <button class="modal-close" @click="closeAddressForm" aria-label="Fermer">✕</button>
         <p class="modal-title">Adresse de livraison</p>
         <p class="modal-sub">France métropolitaine uniquement</p>
         <div class="address-form">
@@ -124,7 +125,6 @@
           <p v-if="addressError" class="order-error">{{ addressError }}</p>
         </div>
         <div class="modal-actions modal-actions--top">
-          <button class="modal-btn modal-btn--cancel" @click="closeAddressForm">Annuler</button>
           <button class="modal-btn modal-btn--confirm" :disabled="loading" @click="confirmOrder">
             {{ loading ? 'En cours…' : 'Confirmer la commande' }}
           </button>
@@ -534,6 +534,7 @@ const askRemoveItem = (item) => openModal(
 }
 
 .modal-card {
+  position: relative;
   background: var(--color-bg);
   border: 1px solid var(--color-border);
   padding: 40px 48px;
@@ -594,6 +595,24 @@ const askRemoveItem = (item) => openModal(
   background: #e53e3e;
   border-color: #e53e3e;
   color: #fff;
+}
+
+.modal-close {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  transition: color var(--transition);
+  line-height: 1;
+  padding: 4px;
+}
+
+.modal-close:hover {
+  color: var(--color-text);
 }
 
 .modal-card--large {
