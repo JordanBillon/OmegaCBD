@@ -9,7 +9,7 @@ const escape = (str: string) => str
 const requests = new Map<string, number>()
 
 export default defineEventHandler(async (event) => {
-  const ip = getRequestHeader(event, 'x-forwarded-for') || 'unknown'
+  const ip = (getRequestHeader(event, 'x-forwarded-for') || 'unknown').split(',')[0]?.trim() ?? 'unknown'
   const now = Date.now()
   const last = requests.get(ip) || 0
 
@@ -17,6 +17,12 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 429, message: 'Trop de messages. Attendez 1 minute.' })
   }
   requests.set(ip, now)
+  if (requests.size > 10_000) {
+    const cutoff = now - 60_000
+    for (const [k, v] of requests) {
+      if (v < cutoff) requests.delete(k)
+    }
+  }
 
   const body = await readBody(event)
   const { nom, prenom, email, sujet, message, age, honeypot } = body

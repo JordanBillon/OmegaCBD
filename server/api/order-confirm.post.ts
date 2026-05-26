@@ -15,12 +15,18 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 401, message: 'Non authentifié.' })
   }
 
-  const ip = getRequestHeader(event, 'x-forwarded-for') || 'unknown'
+  const ip = (getRequestHeader(event, 'x-forwarded-for') || 'unknown').split(',')[0]?.trim() ?? 'unknown'
   const now = Date.now()
   if ((requests.get(ip) || 0) > now - 60_000) {
     throw createError({ statusCode: 429, message: 'Trop de requêtes. Attendez 1 minute.' })
   }
   requests.set(ip, now)
+  if (requests.size > 10_000) {
+    const cutoff = now - 60_000
+    for (const [k, v] of requests) {
+      if (v < cutoff) requests.delete(k)
+    }
+  }
 
   const body = await readBody(event)
   const { items, total, shipping_address, first_name } = body
@@ -28,6 +34,9 @@ export default defineEventHandler(async (event) => {
 
   if (!items?.length || !total || !shipping_address || !email) {
     throw createError({ statusCode: 400, message: 'Données manquantes.' })
+  }
+  if (!items.every((i: any) => i.name && Number(i.price) >= 0 && Number(i.quantity) > 0)) {
+    throw createError({ statusCode: 400, message: 'Articles invalides.' })
   }
 
   const { resendApiKey } = useRuntimeConfig(event)
@@ -103,7 +112,8 @@ export default defineEventHandler(async (event) => {
                 ${escape(sa.first_name)} ${escape(sa.last_name)}<br>
                 ${escape(sa.line1)}<br>
                 ${addr2}${escape(sa.postal_code)} ${escape(sa.city)}<br>
-                <span style="color:#aaaaaa;">${escape(sa.phone)}</span>
+                <span style="color:#aaaaaa;">${escape(sa.phone)}</span><br>
+                <span style="color:#aaaaaa;">${escape(email)}</span>
               </p>
             </div>
           </td>
@@ -143,6 +153,13 @@ export default defineEventHandler(async (event) => {
     console.error('Resend order-confirm error:', JSON.stringify(error))
     throw createError({ statusCode: 500, message: error.message || 'Erreur envoi email.' })
   }
+
+  await resend.emails.send({
+    from: 'OMEGACBD <contact@omegacbd.fr>',
+    to: ['jordan-billon@hotmail.fr'],
+    subject: `[Nouvelle commande] ${escape(shipping_address?.first_name || first_name || '')} — ${Number(total).toFixed(2).replace('.', ',')} €`,
+    html,
+  }).catch(e => console.error('Échec mail admin:', e))
 
   return { success: true }
 })
