@@ -68,13 +68,23 @@
                   <span class="detail-price">{{ (item.price * item.quantity).toFixed(2).replace('.', ',') }} €</span>
                 </div>
                 <div v-if="order.shipping_address" class="order-shipping">
-                  <p class="shipping-label">Livraison</p>
-                  <p class="shipping-addr">
-                    {{ order.shipping_address.first_name }} {{ order.shipping_address.last_name }}<br>
-                    {{ order.shipping_address.line1 }}<span v-if="order.shipping_address.line2">, {{ order.shipping_address.line2 }}</span><br>
-                    {{ order.shipping_address.postal_code }} {{ order.shipping_address.city }}<br>
-                    {{ order.shipping_address.phone }}
-                  </p>
+                  <p class="shipping-title">Livraison</p>
+                  <div class="shipping-row">
+                    <span class="shipping-key">Destinataire</span>
+                    <span class="shipping-val">{{ order.shipping_address.first_name }} {{ order.shipping_address.last_name }}</span>
+                  </div>
+                  <div class="shipping-row">
+                    <span class="shipping-key">Adresse</span>
+                    <span class="shipping-val">{{ order.shipping_address.line1 }}<template v-if="order.shipping_address.line2">, {{ order.shipping_address.line2 }}</template></span>
+                  </div>
+                  <div class="shipping-row">
+                    <span class="shipping-key">Ville</span>
+                    <span class="shipping-val">{{ order.shipping_address.postal_code }} {{ order.shipping_address.city }}</span>
+                  </div>
+                  <div class="shipping-row">
+                    <span class="shipping-key">Téléphone</span>
+                    <span class="shipping-val">{{ order.shipping_address.phone }}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -316,24 +326,40 @@ onMounted(async () => {
 }
 
 .order-shipping {
-  padding: 12px;
+  padding: 12px 16px;
   background: var(--color-surface);
   border-left: 2px solid var(--gold);
   margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
-.shipping-label {
+.shipping-title {
   font-size: var(--fs-tiny);
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
-.shipping-addr {
+.shipping-row {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  gap: 12px;
   font-size: var(--fs-small);
-  color: var(--color-text-muted);
-  line-height: 1.7;
+}
+
+.shipping-key {
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.1em;
+  padding-top: 1px;
+}
+
+.shipping-val {
+  color: var(--color-text);
 }
 
 .order-row--header {
