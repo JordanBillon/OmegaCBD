@@ -221,8 +221,22 @@ const confirmOrder = async () => {
     showAddressForm.value = false
     return
   }
+
+  const orderSnapshot = { items: items.value.map(i => ({ ...i })), total: total.value }
   clear()
   showAddressForm.value = false
+
+  $fetch('/api/order-confirm', {
+    method: 'POST',
+    body: {
+      items: orderSnapshot.items,
+      total: orderSnapshot.total,
+      shipping_address: { ...address },
+      email: session.user.email,
+      first_name: address.first_name
+    }
+  }).catch(e => console.error('Échec mail confirmation:', e))
+
   navigateTo('/compte/dashboard')
 }
 
