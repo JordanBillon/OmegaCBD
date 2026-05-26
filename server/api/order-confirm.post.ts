@@ -1,5 +1,5 @@
 import { Resend } from 'resend'
-import { serverSupabaseUser } from '#supabase/server'
+import { serverSupabaseUser, serverSupabaseServiceRole } from '#supabase/server'
 
 const escape = (str: string) => String(str)
   .replace(/&/g, '&amp;')
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody(event)
-  const { items, total, shipping_address, first_name } = body
+  const { items, total, shipping_address, first_name, promo_code, discount } = body
   const email = user.email
 
   if (!items?.length || !total || !shipping_address || !email) {
@@ -37,6 +37,21 @@ export default defineEventHandler(async (event) => {
   }
   if (!items.every((i: any) => i.name && Number(i.price) >= 0 && Number(i.quantity) > 0)) {
     throw createError({ statusCode: 400, message: 'Articles invalides.' })
+  }
+
+  if (promo_code && typeof promo_code === 'string') {
+    const adminClient = serverSupabaseServiceRole(event) as any
+    const { data: promoData } = await adminClient
+      .from('promo_codes')
+      .select('uses')
+      .eq('code', promo_code)
+      .single()
+    if (promoData) {
+      await adminClient
+        .from('promo_codes')
+        .update({ uses: promoData.uses + 1 })
+        .eq('code', promo_code)
+    }
   }
 
   const { resendApiKey } = useRuntimeConfig(event)
@@ -92,9 +107,14 @@ export default defineEventHandler(async (event) => {
                 <th style="padding:0 0 10px;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#555555;font-weight:400;text-align:right;">Prix</th>
               </tr>
               ${itemsRows}
+              ${promo_code && Number(discount) > 0 ? `
               <tr>
-                <td colspan="2" style="padding:16px 0 0;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:#aaaaaa;">Total</td>
-                <td style="padding:16px 0 0;font-size:18px;color:#fafafa;text-align:right;font-weight:500;">${Number(total).toFixed(2).replace('.', ',')} €</td>
+                <td colspan="2" style="padding:12px 0 0;font-size:12px;letter-spacing:0.1em;color:#aaaaaa;">Code ${escape(promo_code)}</td>
+                <td style="padding:12px 0 0;font-size:14px;color:#c9a96e;text-align:right;">− ${Number(discount).toFixed(2).replace('.', ',')} €</td>
+              </tr>` : ''}
+              <tr>
+                <td colspan="2" style="padding:${promo_code ? '8' : '16'}px 0 0;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:#aaaaaa;">Total</td>
+                <td style="padding:${promo_code ? '8' : '16'}px 0 0;font-size:18px;color:#fafafa;text-align:right;font-weight:500;">${Number(total).toFixed(2).replace('.', ',')} €</td>
               </tr>
               <tr>
                 <td colspan="3" style="padding:6px 0 0;font-size:12px;color:#c9a96e;text-align:right;">Livraison offerte</td>
@@ -196,9 +216,14 @@ export default defineEventHandler(async (event) => {
                 <th style="padding:0 0 10px;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:#555555;font-weight:400;text-align:right;">Prix</th>
               </tr>
               ${itemsRows}
+              ${promo_code && Number(discount) > 0 ? `
               <tr>
-                <td colspan="2" style="padding:16px 0 0;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:#aaaaaa;">Total</td>
-                <td style="padding:16px 0 0;font-size:18px;color:#fafafa;text-align:right;font-weight:500;">${Number(total).toFixed(2).replace('.', ',')} €</td>
+                <td colspan="2" style="padding:12px 0 0;font-size:12px;letter-spacing:0.1em;color:#aaaaaa;">Code ${escape(promo_code)}</td>
+                <td style="padding:12px 0 0;font-size:14px;color:#c9a96e;text-align:right;">− ${Number(discount).toFixed(2).replace('.', ',')} €</td>
+              </tr>` : ''}
+              <tr>
+                <td colspan="2" style="padding:${promo_code ? '8' : '16'}px 0 0;font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:#aaaaaa;">Total</td>
+                <td style="padding:${promo_code ? '8' : '16'}px 0 0;font-size:18px;color:#fafafa;text-align:right;font-weight:500;">${Number(total).toFixed(2).replace('.', ',')} €</td>
               </tr>
             </table>
           </td>

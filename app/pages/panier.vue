@@ -47,9 +47,35 @@
               <span>Livraison</span>
               <span class="summary-free">Offerte</span>
             </div>
+
+            <!-- Code promo -->
+            <div v-if="!appliedPromo" class="promo-section">
+              <div class="promo-input-row">
+                <input
+                  v-model="promoInput"
+                  class="form-input promo-input"
+                  type="text"
+                  placeholder="Code promo"
+                  :disabled="promoLoading"
+                  @keyup.enter="applyPromo"
+                />
+                <button class="promo-btn" :disabled="promoLoading || !promoInput.trim()" @click="applyPromo">
+                  {{ promoLoading ? '…' : 'Appliquer' }}
+                </button>
+              </div>
+              <p v-if="promoError" class="promo-error">{{ promoError }}</p>
+            </div>
+            <div v-else class="summary-row summary-row--promo">
+              <span>
+                {{ appliedPromo.code }}
+                <button class="promo-remove" aria-label="Retirer le code promo" @click="removePromo">✕</button>
+              </span>
+              <span class="promo-discount">− {{ discountAmount.toFixed(2).replace('.', ',') }} €</span>
+            </div>
+
             <div class="summary-row summary-row--total">
               <span>Total</span>
-              <span>{{ total.toFixed(2).replace('.', ',') }} €</span>
+              <span>{{ finalTotal.toFixed(2).replace('.', ',') }} €</span>
             </div>
             <button class="btn btn--primary btn--full" :disabled="loading" @click="commander">
               {{ loading ? 'Commande en cours…' : 'Commander' }}
@@ -145,6 +171,44 @@ const user = useSupabaseUser()
 const loading = ref(false)
 const orderError = ref('')
 
+// Code promo
+const promoInput = ref('')
+const appliedPromo = ref(null)
+const promoError = ref('')
+const promoLoading = ref(false)
+
+const discountAmount = computed(() => {
+  if (!appliedPromo.value) return 0
+  if (appliedPromo.value.discount_type === 'percent') {
+    return Math.round(total.value * appliedPromo.value.discount_value) / 100
+  }
+  return Math.min(appliedPromo.value.discount_value, total.value)
+})
+
+const finalTotal = computed(() => Math.max(0, total.value - discountAmount.value))
+
+const applyPromo = async () => {
+  const code = promoInput.value.trim()
+  if (!code) return
+  promoError.value = ''
+  promoLoading.value = true
+  try {
+    const data = await $fetch('/api/promo/validate', { method: 'POST', body: { code } })
+    appliedPromo.value = data
+    promoInput.value = ''
+  } catch (e) {
+    promoError.value = e.data?.message || 'Code promo invalide.'
+  } finally {
+    promoLoading.value = false
+  }
+}
+
+const removePromo = () => {
+  appliedPromo.value = null
+  promoError.value = ''
+  promoInput.value = ''
+}
+
 const showAddressForm = ref(false)
 const addressError = ref('')
 const saveAddress = ref(true)
@@ -209,7 +273,9 @@ const confirmOrder = async () => {
   const { error } = await supabase.from('orders').insert({
     user_id: session.user.id,
     items: items.value,
-    total: total.value,
+    total: finalTotal.value,
+    promo_code: appliedPromo.value?.code || null,
+    discount: discountAmount.value || 0,
     shipping_address: { ...address }
   })
 
@@ -228,8 +294,14 @@ const confirmOrder = async () => {
     return
   }
 
-  const orderSnapshot = { items: items.value.map(i => ({ ...i })), total: total.value }
+  const orderSnapshot = {
+    items: items.value.map(i => ({ ...i })),
+    total: finalTotal.value,
+    promo_code: appliedPromo.value?.code || null,
+    discount: discountAmount.value || 0
+  }
   clear()
+  appliedPromo.value = null
   showAddressForm.value = false
 
   $fetch('/api/order-confirm', {
@@ -237,6 +309,8 @@ const confirmOrder = async () => {
     body: {
       items: orderSnapshot.items,
       total: orderSnapshot.total,
+      promo_code: orderSnapshot.promo_code,
+      discount: orderSnapshot.discount,
       shipping_address: { ...address },
       first_name: address.first_name
     }
@@ -719,6 +793,76 @@ const askRemoveItem = (item) => openModal(
 .modal-leave-to .modal-card {
   transform: scale(0.95);
   opacity: 0;
+}
+
+.promo-section {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.promo-input-row {
+  display: flex;
+  gap: 8px;
+}
+
+.promo-input {
+  flex: 1;
+  padding: 8px 12px;
+  font-size: var(--fs-small);
+}
+
+.promo-btn {
+  padding: 8px 14px;
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+  font-family: var(--font-body);
+  white-space: nowrap;
+}
+
+.promo-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.promo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.promo-error {
+  font-size: var(--fs-xs);
+  color: #e53e3e;
+  margin-top: 6px;
+}
+
+.summary-row--promo {
+  color: var(--color-text-muted);
+}
+
+.promo-discount {
+  color: var(--gold);
+}
+
+.promo-remove {
+  background: none;
+  border: none;
+  font-size: 11px;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  padding: 0 2px;
+  margin-left: 4px;
+  vertical-align: middle;
+  transition: color var(--transition);
+}
+
+.promo-remove:hover {
+  color: #e53e3e;
 }
 
 @media (max-width: 850px) {

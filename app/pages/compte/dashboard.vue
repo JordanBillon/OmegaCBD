@@ -94,6 +94,10 @@
                   <span class="detail-qty">× {{ item.quantity }}</span>
                   <span class="detail-price">{{ (item.price * item.quantity).toFixed(2).replace('.', ',') }} €</span>
                 </div>
+                <div v-if="order.promo_code && Number(order.discount) > 0" class="order-promo">
+                  <span class="order-promo__code">Code {{ order.promo_code }}</span>
+                  <span class="order-promo__saving">− {{ Number(order.discount).toFixed(2).replace('.', ',') }} €</span>
+                </div>
                 <div v-if="order.shipping_address" class="order-shipping">
                   <p class="shipping-title">Livraison</p>
                   <div class="shipping-row">
@@ -669,6 +673,27 @@ onMounted(async () => {
 .order-status.pending { color: var(--gold); }
 .order-status.cancelled { color: #e53e3e; }
 .order-status.shipped { color: #4299e1; }
+
+.order-promo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--color-surface);
+  border-left: 2px solid var(--gold);
+  font-size: var(--fs-small);
+}
+
+.order-promo__code {
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.order-promo__saving {
+  color: var(--gold);
+  font-family: var(--font-display);
+  font-size: 15px;
+}
 
 .security-card {
   margin-bottom: 48px;
