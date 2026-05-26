@@ -595,11 +595,17 @@ onMounted(async () => {
 
 .status-select:focus { border-color: var(--gold); }
 
-.status-select.s-pending  { color: var(--gold); }
-.status-select.s-paid     { color: #48bb78; }
-.status-select.s-shipped  { color: #4299e1; }
-.status-select.s-delivered{ color: #48bb78; }
-.status-select.s-cancelled{ color: #e53e3e; }
+.status-select.s-pending   { color: var(--gold); }
+.status-select.s-paid      { color: #ed8936; }
+.status-select.s-shipped   { color: #4299e1; }
+.status-select.s-delivered { color: #48bb78; }
+.status-select.s-cancelled { color: #e53e3e; }
+
+.status-select option[value="pending"]   { color: var(--gold); }
+.status-select option[value="paid"]      { color: #ed8936; }
+.status-select option[value="shipped"]   { color: #4299e1; }
+.status-select option[value="delivered"] { color: #48bb78; }
+.status-select option[value="cancelled"] { color: #e53e3e; }
 
 .tracking-row {
   display: flex;
