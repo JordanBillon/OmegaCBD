@@ -82,7 +82,7 @@
             <div v-for="order in orders" :key="order.id" class="order-item">
               <div class="order-row order-row--clickable" @click="toggleOrder(order.id)">
                 <span class="order-id">#{{ order.id.slice(0, 8) }}</span>
-                <span class="order-status" :class="order.status">{{ order.status }}</span>
+                <span class="order-status" :class="order.status">{{ statusLabel(order.status) }}</span>
                 <span class="order-total">{{ Number(order.total).toFixed(2).replace('.', ',') }} €</span>
                 <span class="order-date">{{ formatDate(order.created_at) }}</span>
                 <span class="order-chevron" :class="{ open: expandedOrder === order.id }">›</span>
@@ -115,6 +115,10 @@
                   <div class="shipping-row">
                     <span class="shipping-key">Téléphone</span>
                     <span class="shipping-val">{{ order.shipping_address.phone }}</span>
+                  </div>
+                  <div v-if="order.tracking_number" class="shipping-row shipping-row--tracking">
+                    <span class="shipping-key">N° de suivi</span>
+                    <span class="shipping-val tracking-number">{{ order.tracking_number }}</span>
                   </div>
                 </div>
               </div>
@@ -284,6 +288,9 @@ const savePassword = async () => {
   pwdSuccess.value = true
   setTimeout(() => cancelPwd(), 1200)
 }
+
+const STATUS_LABELS = { pending: 'En attente', paid: 'Payé', shipped: 'Expédié', delivered: 'Livré', cancelled: 'Annulé' }
+const statusLabel = (s) => STATUS_LABELS[s] ?? s
 
 const toggleOrder = (id) => {
   expandedOrder.value = expandedOrder.value === id ? null : id
@@ -653,6 +660,19 @@ onMounted(async () => {
 
 .shipping-val {
   color: var(--color-text);
+}
+
+.shipping-row--tracking {
+  margin-top: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--color-border);
+}
+
+.tracking-number {
+  font-family: monospace;
+  font-size: var(--fs-body);
+  color: var(--gold);
+  letter-spacing: 0.08em;
 }
 
 .order-row--header {
