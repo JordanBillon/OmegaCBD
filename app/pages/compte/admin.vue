@@ -260,6 +260,46 @@
     </div>
 
   </div>
+
+  <Teleport to="body">
+    <div v-if="showShipModal" class="ship-modal-backdrop">
+      <div class="ship-modal-card">
+        <p class="ship-modal-eyebrow">OMEGACBD</p>
+        <h2 class="ship-modal-title">Confirmer l'expédition</h2>
+        <div class="ship-modal-divider"></div>
+        <p class="ship-modal-sub">
+          Commande #{{ shipPendingOrder?.id.slice(0, 8) }}<br>
+          Un email de suivi sera envoyé automatiquement au client.
+        </p>
+        <div class="ship-modal-field">
+          <label class="ship-modal-label">Numéro de suivi *</label>
+          <input
+            v-model="shipTrackingInput"
+            class="ship-modal-input"
+            type="text"
+            placeholder="Ex : 1Z999AA10123456784"
+            maxlength="100"
+            @keyup.enter="confirmShip"
+          />
+        </div>
+        <label class="ship-modal-check">
+          <input v-model="shipSendEmail" type="checkbox" class="ship-modal-checkbox" />
+          <span>Envoyer l'email d'expédition au client</span>
+        </label>
+        <p v-if="shippingError" class="ship-modal-error">{{ shippingError }}</p>
+        <div class="ship-modal-actions">
+          <button class="ship-modal-cancel" @click="cancelShip">Annuler</button>
+          <button
+            class="ship-modal-confirm"
+            :disabled="!shipTrackingInput.trim() || confirmingShip"
+            @click="confirmShip"
+          >
+            {{ confirmingShip ? 'Envoi en cours…' : 'Confirmer et envoyer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 </template>
 
 <script setup>
@@ -293,6 +333,14 @@ const createError = ref('')
 const createSuccess = ref(false)
 const creating = ref(false)
 
+const showShipModal = ref(false)
+const shipPendingOrder = ref(null)
+const shipPendingPrev = ref('')
+const shipTrackingInput = ref('')
+const shipSendEmail = ref(true)
+const shippingError = ref('')
+const confirmingShip = ref(false)
+
 const toggleOrder = (id) => {
   expandedOrder.value = expandedOrder.value === id ? null : id
 }
@@ -301,16 +349,20 @@ const updateStatus = async (order) => {
   const newStatus = orderStatuses[order.id]
   const prev = order.status
 
-  if (newStatus === 'delivered') {
-    if (!confirm(`Passer la commande #${order.id.slice(0, 8)} en historique ?`)) {
-      orderStatuses[order.id] = prev
-      return
-    }
-  } else if (prev === 'delivered') {
-    if (!confirm(`Remettre la commande #${order.id.slice(0, 8)} dans les commandes actives ?`)) {
-      orderStatuses[order.id] = prev
-      return
-    }
+  if (newStatus === 'shipped') {
+    shipPendingOrder.value = order
+    shipPendingPrev.value = prev
+    shipTrackingInput.value = trackingInputs.value[order.id] || ''
+    shipSendEmail.value = !order.tracking_number
+    shippingError.value = ''
+    showShipModal.value = true
+    return
+  }
+
+  const labels = { pending: 'En attente', paid: 'Payé', delivered: 'Livré', cancelled: 'Annulé' }
+  if (!confirm(`Passer la commande #${order.id.slice(0, 8)} en "${labels[newStatus] ?? newStatus}" ?`)) {
+    orderStatuses[order.id] = prev
+    return
   }
 
   try {
@@ -320,6 +372,38 @@ const updateStatus = async (order) => {
     console.error('Erreur statut:', e)
     orderStatuses[order.id] = prev
   }
+}
+
+const confirmShip = async () => {
+  if (!shipTrackingInput.value.trim()) return
+  confirmingShip.value = true
+  shippingError.value = ''
+  const order = shipPendingOrder.value
+  try {
+    await $fetch(`/api/admin/orders/${order.id}`, {
+      method: 'PATCH',
+      body: { status: 'shipped', tracking_number: shipTrackingInput.value.trim(), send_email: shipSendEmail.value }
+    })
+    order.status = 'shipped'
+    order.tracking_number = shipTrackingInput.value.trim()
+    trackingInputs.value[order.id] = shipTrackingInput.value.trim()
+    orderStatuses[order.id] = 'shipped'
+    showShipModal.value = false
+  } catch (e) {
+    shippingError.value = e.data?.message || 'Erreur lors de la mise à jour.'
+    orderStatuses[order.id] = shipPendingPrev.value
+  } finally {
+    confirmingShip.value = false
+  }
+}
+
+const cancelShip = () => {
+  if (shipPendingOrder.value) {
+    orderStatuses[shipPendingOrder.value.id] = shipPendingPrev.value
+  }
+  showShipModal.value = false
+  shipPendingOrder.value = null
+  shippingError.value = ''
 }
 
 const saveTracking = async (order) => {
@@ -890,4 +974,156 @@ onMounted(async () => {
     width: 100%;
   }
 }
+
+/* ── MODAL EXPÉDITION ── */
+
+.ship-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.ship-modal-card {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  padding: 48px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+}
+
+.ship-modal-eyebrow {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 12px;
+}
+
+.ship-modal-title {
+  font-family: var(--font-display);
+  font-size: clamp(24px, 4vw, 32px);
+  font-weight: 300;
+  color: var(--color-text);
+  margin-bottom: 16px;
+}
+
+.ship-modal-divider {
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+  margin: 0 auto 20px;
+}
+
+.ship-modal-sub {
+  font-size: var(--fs-small);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 28px;
+}
+
+.ship-modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  text-align: left;
+  margin-bottom: 8px;
+}
+
+.ship-modal-label {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+.ship-modal-input {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  padding: 12px 14px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  letter-spacing: 0.05em;
+  transition: border-color var(--transition);
+}
+
+.ship-modal-input:focus { border-color: var(--gold); }
+
+.ship-modal-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  margin-top: 14px;
+  cursor: pointer;
+  font-size: var(--fs-small);
+  color: var(--color-text-muted);
+}
+
+.ship-modal-checkbox {
+  accent-color: var(--gold);
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.ship-modal-error {
+  font-size: var(--fs-small);
+  color: #e53e3e;
+  text-align: left;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.ship-modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.ship-modal-cancel {
+  flex: 1;
+  padding: 12px;
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.ship-modal-cancel:hover {
+  border-color: var(--color-text-muted);
+  color: var(--color-text);
+}
+
+.ship-modal-confirm {
+  flex: 2;
+  padding: 12px;
+  background: var(--gold);
+  border: 1px solid var(--gold);
+  color: #0a0a0a;
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.ship-modal-confirm:hover:not(:disabled) { background: transparent; color: var(--gold); }
+.ship-modal-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
 </style>
