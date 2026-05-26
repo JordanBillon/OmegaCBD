@@ -9,12 +9,14 @@ export interface CartItem {
 
 export const useCart = () => {
   const items = useState<CartItem[]>('cart', () => [])
+  const loaded = useState<boolean>('cart_loaded', () => false)
 
   // Charger depuis localStorage
   const load = () => {
-    if (import.meta.client) {
+    if (import.meta.client && !loaded.value) {
       const saved = localStorage.getItem('omegacbd_cart')
       if (saved) items.value = JSON.parse(saved)
+      loaded.value = true
     }
   }
 

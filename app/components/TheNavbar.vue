@@ -39,7 +39,7 @@
           <span class="action-label">{{ isLoggedIn ? 'Mon Compte' : 'Se connecter' }}</span>
         </NuxtLink>
 
-        <NuxtLink to="/panier" class="action-link cart-link" aria-label="Mon panier">
+        <NuxtLink to="/panier" class="action-link cart-link" :aria-label="count > 0 ? `Panier, ${count} article${count > 1 ? 's' : ''}` : 'Mon panier'">
           <span class="cart-icon-wrap">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>

@@ -148,6 +148,7 @@ const showAddressForm = ref(false)
 const addressError = ref('')
 const saveAddress = ref(true)
 const hasSavedAddress = ref(false)
+const currentSession = ref(null)
 const address = reactive({
   first_name: '', last_name: '', line1: '', line2: '', postal_code: '', city: '', phone: ''
 })
@@ -156,6 +157,7 @@ const commander = async () => {
   if (!user.value) return navigateTo('/compte/connexion')
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) return navigateTo('/compte/connexion')
+  currentSession.value = session
   addressError.value = ''
   orderError.value = ''
 
@@ -183,9 +185,20 @@ const confirmOrder = async () => {
     addressError.value = 'Veuillez remplir tous les champs obligatoires.'
     return
   }
+  if (!/^\d{5}$/.test(address.postal_code)) {
+    addressError.value = 'Le code postal doit contenir exactement 5 chiffres.'
+    return
+  }
+  if (!/^(0|\+33)[1-9]\d{8}$/.test(address.phone.replace(/\s/g, ''))) {
+    addressError.value = 'Numéro de téléphone invalide (ex : 06 12 34 56 78).'
+    return
+  }
   loading.value = true
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) return navigateTo('/compte/connexion')
+  const session = currentSession.value
+  if (!session) {
+    loading.value = false
+    return navigateTo('/compte/connexion')
+  }
 
   const { error } = await supabase.from('orders').insert({
     user_id: session.user.id,
@@ -195,7 +208,11 @@ const confirmOrder = async () => {
   })
 
   if (saveAddress.value) {
-    await supabase.from('profiles').update({ shipping_address: { ...address } }).eq('id', session.user.id)
+    const { error: saveError } = await supabase
+      .from('profiles')
+      .update({ shipping_address: { ...address } })
+      .eq('id', session.user.id)
+    if (saveError) console.error('Échec sauvegarde adresse:', saveError)
   }
 
   loading.value = false
