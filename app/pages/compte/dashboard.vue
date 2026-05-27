@@ -396,7 +396,7 @@ const saveEmailInline = async () => {
     return
   }
 
-  const redirectTo = `${window.location.origin}/compte/confirm#email-change`
+  const redirectTo = `${window.location.origin}/compte/confirm-email`
   const { error: updateError } = await supabase.auth.updateUser({ email: newEmail }, { emailRedirectTo: redirectTo })
   savingEmail.value = false
 
