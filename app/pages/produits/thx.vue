@@ -351,6 +351,9 @@ const addToCart = (product) => {
   padding: 24px 28px;
   background: var(--color-surface);
   transition: background var(--transition);
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .legal-block p {

@@ -358,7 +358,9 @@ const addToCart = () => {
   border: 1px solid var(--color-border);
   padding: 24px 28px;
   background: var(--color-surface);
-  margin: 0 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
   transition: background var(--transition);
 }
 
