@@ -339,7 +339,10 @@
             </button>
           </span>
           <span class="bcol-actions">
-            <button class="tracking-save" style="margin-right:8px" @click="startEdit(post)">Modifier</button>
+            <NuxtLink :to="`/blog/${post.slug}`" target="_blank" class="preview-btn" title="Voir l'article">
+              <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </NuxtLink>
+            <button class="tracking-save" @click="startEdit(post)">Modifier</button>
             <button class="delete-btn" :disabled="deletingBlog[post.id]" @click="deletePost(post)">{{ deletingBlog[post.id] ? '…' : '✕' }}</button>
           </span>
         </div>
@@ -1533,8 +1536,17 @@ onMounted(async () => {
 .bcol-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
+
+.preview-btn {
+  display: flex;
+  align-items: center;
+  color: var(--color-text-subtle);
+  transition: color var(--transition);
+}
+
+.preview-btn:hover { color: var(--gold); }
 
 @media (max-width: 768px) {
   .blog-form-grid { grid-template-columns: 1fr; }
