@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@nuxtjs/supabase": "^2.0.9",
+    "better-sqlite3": "^12.10.0",
     "nuxt": "^4.4.2",
     "nuxt-security": "^2.6.0",
     "resend": "^6.12.4",

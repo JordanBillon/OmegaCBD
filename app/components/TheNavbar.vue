@@ -28,6 +28,7 @@
 
         <NuxtLink to="/infos" class="nav-link" active-class="nav-link--active">Infos</NuxtLink>
         <NuxtLink to="/faq" class="nav-link" active-class="nav-link--active">FAQ</NuxtLink>
+        <NuxtLink to="/blog" class="nav-link" active-class="nav-link--active">Blog</NuxtLink>
         <NuxtLink to="/contact" class="nav-link" active-class="nav-link--active">Contact</NuxtLink>
       </nav>
 
@@ -82,6 +83,7 @@
       </div>
       <NuxtLink to="/infos" class="mobile-link" @click="mobileOpen = false">Infos</NuxtLink>
       <NuxtLink to="/faq" class="mobile-link" @click="mobileOpen = false">FAQ</NuxtLink>
+      <NuxtLink to="/blog" class="mobile-link" @click="mobileOpen = false">Blog</NuxtLink>
       <NuxtLink to="/contact" class="mobile-link" @click="mobileOpen = false">Contact</NuxtLink>
       <div class="mobile-actions">
         <NuxtLink to="/compte" class="mobile-link" @click="mobileOpen = false">{{ isLoggedIn ? 'Mon Compte' : 'Se connecter' }}</NuxtLink>

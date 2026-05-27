@@ -27,7 +27,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/compte/connexion',
       callback: '/compte/confirm',
-      exclude: ['/', '/produits/*', '/infos', '/faq', '/contact'],
+      exclude: ['/', '/produits/*', '/infos', '/faq', '/contact', '/blog', '/blog/*'],
     }
   },
 css: ['~/assets/css/main.css'],
