@@ -19,9 +19,8 @@ const message = ref('Merci de patienter quelques instants.')
 const ready = ref(false)
 
 onMounted(async () => {
-  const hash = window.location.hash
-  const isEmailChange = hash.includes('type=email_change')
-    || new URLSearchParams(window.location.search).get('type') === 'email_change'
+  const isEmailChange = localStorage.getItem('confirm_type') === 'email_change'
+  if (isEmailChange) localStorage.removeItem('confirm_type')
 
   // Laisse le module Supabase traiter les tokens de l'URL
   await new Promise(r => setTimeout(r, 800))
