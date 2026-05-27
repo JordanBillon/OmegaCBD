@@ -218,6 +218,13 @@
         </div>
       </div>
 
+      <div v-if="isAdmin" class="admin-access">
+        <NuxtLink to="/compte/admin" class="admin-access-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Dashboard admin
+        </NuxtLink>
+      </div>
+
       <div class="logout-wrapper">
         <button class="logout-btn" @click="logout">Se déconnecter</button>
       </div>
@@ -238,6 +245,7 @@ const profile = ref(null)
 const orders = ref([])
 const expandedOrder = ref(null)
 const loadingOrders = ref(true)
+const isAdmin = ref(false)
 
 const editMode = ref(false)
 const savingProfile = ref(false)
@@ -506,6 +514,11 @@ onMounted(async () => {
   const { data: o } = await supabase.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false })
   orders.value = o || []
   loadingOrders.value = false
+
+  try {
+    await $fetch('/api/admin/check')
+    isAdmin.value = true
+  } catch { }
 })
 </script>
 
@@ -992,6 +1005,32 @@ onMounted(async () => {
   color: var(--color-text-subtle);
   letter-spacing: 0.2em;
   margin: 0;
+}
+
+.admin-access {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.admin-access-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all var(--transition);
+}
+
+.admin-access-btn:hover {
+  background: var(--gold);
+  color: #0a0a0a;
 }
 
 .logout-wrapper {
