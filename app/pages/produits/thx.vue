@@ -11,13 +11,15 @@
     <div class="products-section container">
       <div class="products-grid">
         <article v-for="product in products" :key="product.id" class="product-card">
-          <div class="product-card__image-wrap">
+          <NuxtLink :to="`/produits/${product.slug}`" class="product-card__image-wrap">
             <img :src="product.image" :alt="product.name" class="product-card__image" />
             <span class="product-card__badge">{{ product.badge }}</span>
-          </div>
+          </NuxtLink>
           <div class="product-card__body">
             <p class="product-card__tag">Collection THX</p>
-            <h2 class="product-card__name">{{ product.name }}</h2>
+            <NuxtLink :to="`/produits/${product.slug}`" class="product-card__name-link">
+              <h2 class="product-card__name">{{ product.name }}</h2>
+            </NuxtLink>
             <div class="product-card__rates">
               <div class="rate">
                 <span class="rate__label">CBD</span>
@@ -69,46 +71,14 @@
 </template>
 
 <script setup>
+import { getProductsByCollection } from '~/data/products'
+
 const { add, load } = useCart()
 const router = useRouter()
 const user = useSupabaseUser()
 onMounted(load)
 
-const products = [
-  {
-    id: 'alien-og',
-    name: 'Alien OG',
-    badge: 'Exclusif',
-    cbd: '22%',
-    origine: 'Indoor+',
-    image: '/Alien-OG-THX-1.webp',
-    desc: "L'Alien OG THX est l'une des variétés les plus puissantes en cannabidiol de notre catalogue. Cultivée en indoor premium avec un contrôle total des paramètres environnementaux, elle développe une résine abondante et un profil terpénique d'une rare complexité. Ses arômes intenses de pin, d'agrumes et de terre en font une pièce de collection.",
-    aromes: ['Pin', 'Citron', 'Terre', 'Résine'],
-    prices: [{ weight: '2g', price: 9.90 }, { weight: '5g', price: 21.90 }, { weight: '10g', price: 38.90 }]
-  },
-  {
-    id: 'fantasy',
-    name: 'Fantasy',
-    badge: 'Exclusif',
-    cbd: '17%',
-    origine: 'Indoor',
-    image: '/Fleur-THX-1.webp',
-    desc: "La Fantasy vous transporte dans un univers sensoriel unique. Ses inflorescences aux teintes chaudes et à la couverture trichomique dense révèlent des arômes floraux et fruités d'une grande finesse. Une variété accessible qui séduit dès la première ouverture par la générosité de son bouquet olfactif.",
-    aromes: ['Floral', 'Fruité', 'Sucré', 'Miel'],
-    prices: [{ weight: '2g', price: 8.90 }, { weight: '5g', price: 19.90 }, { weight: '10g', price: 35.90 }]
-  },
-  {
-    id: 'euphoria',
-    name: 'Euphoria',
-    badge: 'Exclusif',
-    cbd: '19%',
-    origine: 'Indoor',
-    image: '/euphoria-1.webp',
-    desc: "La variété Euphoria est reconnue dans le milieu du CBD pour ses arômes profonds et enveloppants. Ses notes boisées, épicées et légèrement terreuses la distinguent de la concurrence. Avec un taux de CBD de 19% et une qualité de culture irréprochable, l'Euphoria représente l'essence même du savoir-faire OMEGACBD.",
-    aromes: ['Boisé', 'Épicé', 'Terreux', 'Vanille'],
-    prices: [{ weight: '2g', price: 8.90 }, { weight: '5g', price: 19.90 }, { weight: '10g', price: 35.90 }]
-  }
-]
+const products = getProductsByCollection('thx')
 
 const selected = reactive(Object.fromEntries(products.map(p => [p.id, '2g'])))
 const added = reactive(Object.fromEntries(products.map(p => [p.id, false])))
@@ -191,6 +161,15 @@ const addToCart = (product) => {
   transform: translateY(-4px);
 }
 
+.product-card__name-link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.product-card__name-link:hover .product-card__name {
+  color: var(--gold);
+}
+
 .product-card__image-wrap {
   position: relative;
   background: var(--color-surface);
@@ -199,6 +178,7 @@ const addToCart = (product) => {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  text-decoration: none;
 }
 
 .product-card__image {
