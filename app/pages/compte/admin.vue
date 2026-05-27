@@ -19,6 +19,9 @@
         <button class="admin-tab" :class="{ active: tab === 'promos' }" @click="tab = 'promos'">
           Codes promo <span class="tab-count">{{ promos.length }}</span>
         </button>
+        <button class="admin-tab" :class="{ active: tab === 'blog' }" @click="tab = 'blog'">
+          Blog <span class="tab-count">{{ blogPosts.length }}</span>
+        </button>
       </div>
     </div>
 
@@ -259,7 +262,117 @@
 
     </div>
 
+    <!-- BLOG -->
+    <div v-if="tab === 'blog'" class="admin-section container">
+
+      <div class="blog-admin-form">
+        <h2 class="blog-form-title">{{ editingPost ? 'Modifier l\'article' : 'Nouvel article' }}</h2>
+        <div class="blog-form-grid">
+          <div class="create-field" style="grid-column: 1/-1">
+            <label class="create-label">Titre *</label>
+            <input v-model="blogForm.title" class="create-input" type="text" placeholder="Titre de l'article" @input="onTitleInput" />
+          </div>
+          <div class="create-field">
+            <label class="create-label">Slug (URL) *</label>
+            <input v-model="blogForm.slug" class="create-input" type="text" placeholder="mon-article" />
+          </div>
+          <div class="create-field">
+            <label class="create-label">Catégorie</label>
+            <input v-model="blogForm.category" class="create-input" type="text" placeholder="Réglementation" />
+          </div>
+          <div class="create-field">
+            <label class="create-label">Date</label>
+            <input v-model="blogForm.date" class="create-input" type="date" />
+          </div>
+          <div class="create-field">
+            <label class="create-label">Publié</label>
+            <select v-model="blogForm.published" class="create-input">
+              <option :value="true">Oui</option>
+              <option :value="false">Non (brouillon)</option>
+            </select>
+          </div>
+          <div class="create-field" style="grid-column: 1/-1">
+            <label class="create-label">Description courte *</label>
+            <textarea v-model="blogForm.description" class="create-input create-textarea--sm" placeholder="Résumé affiché sur la liste du blog"></textarea>
+          </div>
+          <div class="create-field" style="grid-column: 1/-1">
+            <label class="create-label">Contenu *</label>
+            <div class="editor-toolbar">
+              <button type="button" class="toolbar-btn" @click="insertMd('h2')">Titre</button>
+              <button type="button" class="toolbar-btn" @click="insertMd('h3')">Sous-titre</button>
+              <button type="button" class="toolbar-btn" @click="insertMd('li')">Liste</button>
+              <button type="button" class="toolbar-btn toolbar-btn--bold" @click="insertMd('bold')">Gras</button>
+            </div>
+            <div class="editor-wrap">
+              <textarea ref="editorRef" v-model="blogForm.raw_content" class="create-input create-textarea--lg editor-input" placeholder="Clique sur les boutons ci-dessus ou écris directement…"></textarea>
+              <div class="editor-preview prose" v-html="previewHtml || '<p class=\'preview-empty\'>Prévisualisation…</p>'"></div>
+            </div>
+          </div>
+          <div class="create-field create-field--btn" style="grid-column: 1/-1; display:flex; gap:12px">
+            <button class="create-btn" :disabled="savingBlog || !blogForm.title.trim() || !blogForm.slug.trim()" @click="saveBlog">
+              {{ savingBlog ? 'Enregistrement…' : (editingPost ? 'Enregistrer les modifications' : 'Publier l\'article') }}
+            </button>
+            <button v-if="editingPost" class="delete-btn" style="padding:10px 18px" @click="cancelEdit">Annuler</button>
+          </div>
+        </div>
+        <p v-if="blogError" class="create-error">{{ blogError }}</p>
+        <p v-if="blogSuccess" class="create-success">{{ blogSuccess }}</p>
+      </div>
+
+      <div v-if="loadingBlog" class="admin-loading">Chargement…</div>
+      <div v-else-if="blogPosts.length === 0" class="admin-empty">Aucun article. Créez-en un ci-dessus.</div>
+      <div v-else class="blog-admin-list">
+        <div class="blog-admin-row blog-admin-row--head">
+          <span>Titre</span>
+          <span>Date</span>
+          <span>Catégorie</span>
+          <span>Statut</span>
+          <span></span>
+        </div>
+        <div v-for="post in blogPosts" :key="post.id" class="blog-admin-row" :class="{ editing: editingPost?.id === post.id }">
+          <span class="bcol-title">{{ post.title }}</span>
+          <span class="bcol-date">{{ formatDate(post.date) }}</span>
+          <span class="bcol-cat">{{ post.category }}</span>
+          <span class="bcol-status">
+            <button class="toggle-btn" :class="{ 'toggle-btn--on': post.published }" :disabled="togglingBlog[post.id]" @click="toggleBlogPost(post)">
+              {{ post.published ? 'Publié' : 'Brouillon' }}
+            </button>
+          </span>
+          <span class="bcol-actions">
+            <button class="tracking-save" style="margin-right:8px" @click="startEdit(post)">Modifier</button>
+            <button class="delete-btn" :disabled="deletingBlog[post.id]" @click="deletePost(post)">{{ deletingBlog[post.id] ? '…' : '✕' }}</button>
+          </span>
+        </div>
+      </div>
+
+    </div>
+
   </div>
+
+  <Teleport to="body">
+    <div v-if="showDeliveredModal" class="ship-modal-backdrop">
+      <div class="ship-modal-card">
+        <p class="ship-modal-eyebrow">OMEGACBD</p>
+        <h2 class="ship-modal-title">Confirmer la livraison</h2>
+        <div class="ship-modal-divider"></div>
+        <p class="ship-modal-sub">
+          Commande #{{ deliveredPendingOrder?.id.slice(0, 8) }}<br>
+          La commande sera marquée comme livrée.
+        </p>
+        <label class="ship-modal-check">
+          <input v-model="deliveredSendEmail" type="checkbox" class="ship-modal-checkbox" />
+          <span>Envoyer l'email de livraison au client</span>
+        </label>
+        <p v-if="deliveredError" class="ship-modal-error">{{ deliveredError }}</p>
+        <div class="ship-modal-actions">
+          <button class="ship-modal-cancel" @click="cancelDelivered">Annuler</button>
+          <button class="ship-modal-confirm" :disabled="confirmingDelivered" @click="confirmDelivered">
+            {{ confirmingDelivered ? 'Confirmation…' : 'Confirmer' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 
   <Teleport to="body">
     <div v-if="showShipModal" class="ship-modal-backdrop">
@@ -307,8 +420,8 @@ definePageMeta({ middleware: 'admin' })
 
 const tab = ref('orders')
 
-const activeOrders = computed(() => orders.value.filter(o => o.status !== 'delivered'))
-const historicalOrders = computed(() => orders.value.filter(o => o.status === 'delivered'))
+const activeOrders = computed(() => orders.value.filter(o => o.status !== 'delivered' && o.status !== 'cancelled'))
+const historicalOrders = computed(() => orders.value.filter(o => o.status === 'delivered' || o.status === 'cancelled'))
 const pendingCount = computed(() => orders.value.filter(o => o.status === 'pending').length)
 const orderStatuses = reactive({})
 
@@ -321,6 +434,165 @@ const trackingInputs = ref({})
 const savingTracking = ref({})
 const togglingPromo = ref({})
 const deletingPromo = ref({})
+
+const blogPosts = ref([])
+const loadingBlog = ref(true)
+const savingBlog = ref(false)
+const togglingBlog = ref({})
+const deletingBlog = ref({})
+const editingPost = ref(null)
+const blogError = ref('')
+const blogSuccess = ref('')
+
+const blogForm = reactive({
+  title: '',
+  slug: '',
+  category: 'Article',
+  description: '',
+  raw_content: '',
+  date: new Date().toISOString().slice(0, 10),
+  published: true
+})
+
+const slugify = (str) => str.toLowerCase()
+  .normalize('NFD').replace(/[̀-ͯ]/g, '')
+  .replace(/[^a-z0-9]+/g, '-')
+  .replace(/^-|-$/g, '')
+
+const renderMarkdown = (text) => {
+  if (!text) return ''
+  const lines = text.split('\n')
+  const html = []
+  let inList = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    if (line.startsWith('### ')) {
+      if (inList) { html.push('</ul>'); inList = false }
+      html.push(`<h3>${line.slice(4)}</h3>`)
+    } else if (line.startsWith('## ')) {
+      if (inList) { html.push('</ul>'); inList = false }
+      html.push(`<h2>${line.slice(3)}</h2>`)
+    } else if (line.startsWith('- ')) {
+      if (!inList) { html.push('<ul>'); inList = true }
+      const content = line.slice(2).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      html.push(`<li>${content}</li>`)
+    } else if (line.trim() === '') {
+      if (inList) { html.push('</ul>'); inList = false }
+    } else {
+      if (inList) { html.push('</ul>'); inList = false }
+      const content = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      html.push(`<p>${content}</p>`)
+    }
+  }
+  if (inList) html.push('</ul>')
+  return html.join('\n')
+}
+
+const previewHtml = computed(() => renderMarkdown(blogForm.raw_content))
+
+const editorRef = ref(null)
+
+const insertMd = (type) => {
+  const el = editorRef.value
+  if (!el) return
+  const start = el.selectionStart
+  const end = el.selectionEnd
+  const text = blogForm.raw_content
+  const selected = text.slice(start, end)
+
+  if (type === 'bold') {
+    if (selected) {
+      blogForm.raw_content = text.slice(0, start) + `**${selected}**` + text.slice(end)
+      nextTick(() => { el.focus(); el.setSelectionRange(start + 2, end + 2) })
+    } else {
+      blogForm.raw_content = text.slice(0, start) + '****' + text.slice(end)
+      nextTick(() => { el.focus(); el.setSelectionRange(start + 2, start + 2) })
+    }
+    return
+  }
+
+  const prefixes = { h2: '## ', h3: '### ', li: '- ' }
+  const prefix = prefixes[type]
+  const lineStart = text.lastIndexOf('\n', start - 1) + 1
+  blogForm.raw_content = text.slice(0, lineStart) + prefix + text.slice(lineStart)
+  nextTick(() => { el.focus(); el.setSelectionRange(start + prefix.length, end + prefix.length) })
+}
+
+const onTitleInput = () => {
+  if (!editingPost.value) blogForm.slug = slugify(blogForm.title)
+}
+
+const resetBlogForm = () => {
+  Object.assign(blogForm, { title: '', slug: '', category: 'Article', description: '', raw_content: '', date: new Date().toISOString().slice(0, 10), published: true })
+  editingPost.value = null
+  blogError.value = ''
+  blogSuccess.value = ''
+}
+
+const startEdit = (post) => {
+  editingPost.value = post
+  Object.assign(blogForm, { title: post.title, slug: post.slug, category: post.category, description: post.description, raw_content: post.raw_content || '', date: post.date, published: post.published })
+  blogError.value = ''
+  blogSuccess.value = ''
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const cancelEdit = () => resetBlogForm()
+
+const saveBlog = async () => {
+  blogError.value = ''
+  blogSuccess.value = ''
+  savingBlog.value = true
+  const content = renderMarkdown(blogForm.raw_content)
+  try {
+    if (editingPost.value) {
+      const updated = await $fetch(`/api/admin/posts/${editingPost.value.id}`, {
+        method: 'PATCH',
+        body: { title: blogForm.title, slug: blogForm.slug, category: blogForm.category, description: blogForm.description, raw_content: blogForm.raw_content, content, date: blogForm.date, published: blogForm.published }
+      })
+      const idx = blogPosts.value.findIndex(p => p.id === editingPost.value.id)
+      if (idx !== -1) blogPosts.value[idx] = updated
+      blogSuccess.value = 'Article modifié.'
+      resetBlogForm()
+    } else {
+      const newPost = await $fetch('/api/admin/posts', {
+        method: 'POST',
+        body: { title: blogForm.title, slug: blogForm.slug, category: blogForm.category, description: blogForm.description, raw_content: blogForm.raw_content, content, date: blogForm.date, published: blogForm.published }
+      })
+      blogPosts.value.unshift(newPost)
+      blogSuccess.value = 'Article publié.'
+      resetBlogForm()
+    }
+    setTimeout(() => { blogSuccess.value = '' }, 3000)
+  } catch (e) {
+    blogError.value = e.data?.message || 'Erreur lors de l\'enregistrement.'
+  } finally {
+    savingBlog.value = false
+  }
+}
+
+const toggleBlogPost = async (post) => {
+  togglingBlog.value[post.id] = true
+  try {
+    await $fetch(`/api/admin/posts/${post.id}`, { method: 'PATCH', body: { published: !post.published } })
+    post.published = !post.published
+  } catch { } finally {
+    togglingBlog.value[post.id] = false
+  }
+}
+
+const deletePost = async (post) => {
+  if (!confirm(`Supprimer "${post.title}" ?`)) return
+  deletingBlog.value[post.id] = true
+  try {
+    await $fetch(`/api/admin/posts/${post.id}`, { method: 'DELETE' })
+    blogPosts.value = blogPosts.value.filter(p => p.id !== post.id)
+  } catch { } finally {
+    deletingBlog.value[post.id] = false
+  }
+}
 
 const createForm = reactive({
   code: '',
@@ -341,6 +613,13 @@ const shipSendEmail = ref(true)
 const shippingError = ref('')
 const confirmingShip = ref(false)
 
+const showDeliveredModal = ref(false)
+const deliveredPendingOrder = ref(null)
+const deliveredPendingPrev = ref('')
+const deliveredSendEmail = ref(true)
+const deliveredError = ref('')
+const confirmingDelivered = ref(false)
+
 const toggleOrder = (id) => {
   expandedOrder.value = expandedOrder.value === id ? null : id
 }
@@ -348,6 +627,15 @@ const toggleOrder = (id) => {
 const updateStatus = async (order) => {
   const newStatus = orderStatuses[order.id]
   const prev = order.status
+
+  if (newStatus === 'delivered') {
+    deliveredPendingOrder.value = order
+    deliveredPendingPrev.value = prev
+    deliveredSendEmail.value = tab.value !== 'history'
+    deliveredError.value = ''
+    showDeliveredModal.value = true
+    return
+  }
 
   if (newStatus === 'shipped') {
     shipPendingOrder.value = order
@@ -366,8 +654,7 @@ const updateStatus = async (order) => {
   }
 
   try {
-    const body = { status: newStatus, ...(newStatus === 'delivered' ? { send_email: true } : {}) }
-    await $fetch(`/api/admin/orders/${order.id}`, { method: 'PATCH', body })
+    await $fetch(`/api/admin/orders/${order.id}`, { method: 'PATCH', body: { status: newStatus } })
     order.status = newStatus
   } catch (e) {
     console.error('Erreur statut:', e)
@@ -405,6 +692,35 @@ const cancelShip = () => {
   showShipModal.value = false
   shipPendingOrder.value = null
   shippingError.value = ''
+}
+
+const confirmDelivered = async () => {
+  confirmingDelivered.value = true
+  deliveredError.value = ''
+  const order = deliveredPendingOrder.value
+  try {
+    await $fetch(`/api/admin/orders/${order.id}`, {
+      method: 'PATCH',
+      body: { status: 'delivered', send_email: deliveredSendEmail.value }
+    })
+    order.status = 'delivered'
+    orderStatuses[order.id] = 'delivered'
+    showDeliveredModal.value = false
+  } catch (e) {
+    deliveredError.value = e.data?.message || 'Erreur lors de la mise à jour.'
+    orderStatuses[order.id] = deliveredPendingPrev.value
+  } finally {
+    confirmingDelivered.value = false
+  }
+}
+
+const cancelDelivered = () => {
+  if (deliveredPendingOrder.value) {
+    orderStatuses[deliveredPendingOrder.value.id] = deliveredPendingPrev.value
+  }
+  showDeliveredModal.value = false
+  deliveredPendingOrder.value = null
+  deliveredError.value = ''
 }
 
 const saveTracking = async (order) => {
@@ -478,12 +794,14 @@ const formatDate = (date) => {
 
 onMounted(async () => {
   try {
-    const [o, p] = await Promise.all([
+    const [o, p, b] = await Promise.all([
       $fetch('/api/admin/orders'),
-      $fetch('/api/admin/promos')
+      $fetch('/api/admin/promos'),
+      $fetch('/api/admin/posts')
     ])
     orders.value = o || []
     promos.value = p || []
+    blogPosts.value = b || []
     for (const order of orders.value) {
       trackingInputs.value[order.id] = order.tracking_number || ''
       orderStatuses[order.id] = order.status
@@ -496,6 +814,7 @@ onMounted(async () => {
   } finally {
     loadingOrders.value = false
     loadingPromos.value = false
+    loadingBlog.value = false
   }
 })
 </script>
@@ -1127,4 +1446,202 @@ onMounted(async () => {
 
 .ship-modal-confirm:hover:not(:disabled) { background: transparent; color: var(--gold); }
 .ship-modal-confirm:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ── BLOG ADMIN ── */
+.blog-admin-form {
+  border: 1px solid var(--color-border);
+  padding: 28px;
+  margin-bottom: 32px;
+  background: var(--color-surface);
+  transition: background var(--transition);
+}
+
+.blog-form-title {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin-bottom: 20px;
+}
+
+.blog-form-hint {
+  font-size: var(--fs-xs);
+  color: var(--color-text-subtle);
+  margin-bottom: 6px;
+}
+
+.blog-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.create-textarea--sm {
+  height: 80px;
+  resize: vertical;
+  font-family: var(--font-body);
+  line-height: 1.5;
+}
+
+.create-textarea--lg {
+  height: 220px;
+  resize: vertical;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.blog-admin-list {
+  border: 1px solid var(--color-border);
+  overflow-x: auto;
+}
+
+.blog-admin-row {
+  display: grid;
+  grid-template-columns: 1fr 110px 120px 110px 120px;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  align-items: center;
+  font-size: var(--fs-small);
+  color: var(--color-text-muted);
+  transition: background var(--transition);
+}
+
+.blog-admin-row--head {
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  background: var(--color-surface);
+}
+
+.blog-admin-row.editing {
+  background: color-mix(in srgb, var(--gold) 5%, var(--color-bg));
+}
+
+.blog-admin-row:last-child { border-bottom: none; }
+
+.bcol-title {
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bcol-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .blog-form-grid { grid-template-columns: 1fr; }
+  .blog-admin-row { grid-template-columns: 1fr 80px 80px; }
+  .bcol-date, .bcol-cat { display: none; }
+}
+
+/* ── EDITOR MARKDOWN ── */
+.editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.toolbar-btn {
+  padding: 5px 14px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  font-size: var(--fs-tiny);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.toolbar-btn:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.toolbar-btn--bold {
+  font-weight: 700;
+}
+
+.editor-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: 1px solid var(--color-border);
+}
+
+.editor-input {
+  border: none !important;
+  border-right: 1px solid var(--color-border) !important;
+  border-radius: 0;
+  resize: vertical;
+  min-height: 260px;
+}
+
+.editor-input:focus {
+  border-color: var(--color-border) !important;
+  outline: none;
+}
+
+.editor-preview {
+  padding: 12px 16px;
+  min-height: 260px;
+  overflow-y: auto;
+  font-size: var(--fs-small);
+  color: var(--color-text-muted);
+  background: var(--color-surface);
+  line-height: 1.75;
+}
+
+.editor-preview :deep(h2) {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin: 16px 0 8px;
+}
+
+.editor-preview :deep(h3) {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--color-text);
+  margin: 12px 0 6px;
+}
+
+.editor-preview :deep(p) {
+  margin-bottom: 10px;
+}
+
+.editor-preview :deep(ul) {
+  margin: 0 0 10px 20px;
+}
+
+.editor-preview :deep(li) {
+  margin-bottom: 4px;
+}
+
+.editor-preview :deep(strong) {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.editor-preview :deep(.preview-empty) {
+  font-style: italic;
+  color: var(--color-text-subtle) !important;
+}
+
+@media (max-width: 900px) {
+  .editor-wrap { grid-template-columns: 1fr; }
+  .editor-input { border-right: none !important; border-bottom: 1px solid var(--color-border) !important; }
+}
 </style>

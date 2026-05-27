@@ -31,18 +31,26 @@
 </template>
 
 <script setup>
-import { getPostBySlug } from '~/data/posts'
-
 const route = useRoute()
-const post = getPostBySlug(route.params.slug)
+const supabase = useSupabaseClient()
 
-if (!post) {
+const { data: post } = await useAsyncData(`blog-${route.params.slug}`, async () => {
+  const { data } = await supabase
+    .from('posts')
+    .select('*')
+    .eq('slug', route.params.slug)
+    .eq('published', true)
+    .single()
+  return data
+})
+
+if (!post.value) {
   throw createError({ statusCode: 404, statusMessage: 'Article introuvable' })
 }
 
 useHead({
-  title: `${post.title} — OMEGACBD`,
-  meta: [{ name: 'description', content: post.description }]
+  title: `${post.value.title} — OMEGACBD`,
+  meta: [{ name: 'description', content: post.value.description }]
 })
 
 const formatDate = (dateStr) =>
@@ -72,7 +80,6 @@ const formatDate = (dateStr) =>
 }
 
 .breadcrumb__link:hover { color: var(--gold); }
-
 .breadcrumb__sep { color: var(--color-border); }
 
 .breadcrumb__current {
@@ -88,9 +95,7 @@ const formatDate = (dateStr) =>
   padding: 40px 24px 0;
 }
 
-.article__header {
-  margin-bottom: 48px;
-}
+.article__header { margin-bottom: 48px; }
 
 .article__meta {
   display: flex;
@@ -173,9 +178,7 @@ const formatDate = (dateStr) =>
   font-weight: 600;
 }
 
-.prose :deep(ul) {
-  margin: 0 0 20px 24px;
-}
+.prose :deep(ul) { margin: 0 0 20px 24px; }
 
 .prose :deep(li) {
   font-size: var(--fs-body);

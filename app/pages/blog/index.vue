@@ -9,7 +9,8 @@
     </div>
 
     <div class="blog-section container">
-      <div class="blog-grid">
+      <div v-if="!posts || posts.length === 0" class="blog-empty">Aucun article pour le moment.</div>
+      <div v-else class="blog-grid">
         <article v-for="post in posts" :key="post.slug" class="blog-card">
           <NuxtLink :to="`/blog/${post.slug}`" class="blog-card__inner">
             <div class="blog-card__header">
@@ -28,9 +29,18 @@
 </template>
 
 <script setup>
-import { posts } from '~/data/posts'
-
 useHead({ title: 'Blog — OMEGACBD' })
+
+const supabase = useSupabaseClient()
+
+const { data: posts } = await useAsyncData('blog-posts', async () => {
+  const { data } = await supabase
+    .from('posts')
+    .select('slug, title, description, category, date')
+    .eq('published', true)
+    .order('date', { ascending: false })
+  return data || []
+})
 
 const formatDate = (dateStr) =>
   new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -83,6 +93,13 @@ const formatDate = (dateStr) =>
 
 .blog-section {
   padding: 80px 24px;
+}
+
+.blog-empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--fs-body);
+  padding: 60px 0;
 }
 
 .blog-grid {
