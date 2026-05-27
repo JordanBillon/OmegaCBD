@@ -5,7 +5,7 @@
       <p class="page-hero__eyebrow">OMEGACBD</p>
       <h1 class="page-hero__title">Mon Compte</h1>
       <div class="page-hero__divider"></div>
-      <p class="page-hero__sub">Bienvenue, {{ profile?.first_name || user?.email }}</p>
+      <p class="page-hero__sub">Bienvenue, {{ profile?.first_name || currentEmail }}</p>
     </div>
 
     <div class="dashboard-section container">
@@ -22,7 +22,7 @@
             <div v-if="!emailInlineMode" class="info-row">
               <span class="info-label">Email</span>
               <span class="info-value info-value--email">
-                {{ user?.email }}
+                {{ currentEmail }}
                 <button class="pencil-btn" aria-label="Modifier l'email" @click="startEmailInline">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                 </button>
@@ -231,6 +231,7 @@ definePageMeta({ middleware: 'auth' })
 
 const supabase = useSupabaseClient()
 const user = useSupabaseUser()
+const currentEmail = ref('')
 const router = useRouter()
 
 const profile = ref(null)
@@ -379,14 +380,14 @@ const saveEmailInline = async () => {
     emailInlineError.value = 'Adresse email invalide.'
     return
   }
-  if (newEmail === user.value?.email) {
+  if (newEmail === currentEmail.value) {
     emailInlineError.value = 'Cette adresse est déjà la vôtre.'
     return
   }
 
   savingEmail.value = true
   const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: user.value.email,
+    email: currentEmail.value,
     password: emailForm.email_password,
   })
   if (signInError) {
@@ -443,7 +444,7 @@ const savePassword = async () => {
 
   savingPwd.value = true
   const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: user.value.email,
+    email: currentEmail.value,
     password: pwdForm.current,
   })
   if (signInError) {
@@ -496,6 +497,8 @@ const logout = async () => {
 onMounted(async () => {
   const { data: { user: currentUser } } = await supabase.auth.getUser()
   if (!currentUser) { router.push('/compte/connexion'); return }
+
+  currentEmail.value = currentUser.email
 
   const { data: p } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single()
   profile.value = p

@@ -19,26 +19,21 @@ const message = ref('Merci de patienter quelques instants.')
 const ready = ref(false)
 
 onMounted(async () => {
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-    if (event === 'USER_UPDATED' || event === 'SIGNED_IN') {
-      const isEmailChange = window.location.hash.includes('type=email_change')
-        || new URLSearchParams(window.location.search).get('type') === 'email_change'
-      title.value = isEmailChange ? 'Email mis à jour !' : 'Compte confirmé !'
-      message.value = isEmailChange
-        ? 'Votre nouvelle adresse email est désormais active.'
-        : 'Votre compte est activé et prêt à être utilisé.'
-      ready.value = true
-      subscription.unsubscribe()
-    }
-  })
+  const hash = window.location.hash
+  const isEmailChange = hash.includes('type=email_change')
+    || new URLSearchParams(window.location.search).get('type') === 'email_change'
 
-  // Fallback si l'event ne se déclenche pas (token déjà traité)
-  await new Promise(r => setTimeout(r, 3000))
-  if (!ready.value) {
-    title.value = 'Confirmation'
-    message.value = 'Opération effectuée.'
-    ready.value = true
-  }
+  // Laisse le module Supabase traiter les tokens de l'URL
+  await new Promise(r => setTimeout(r, 800))
+
+  // Force le rafraîchissement de la session pour que le nouvel email soit actif
+  await supabase.auth.refreshSession()
+
+  title.value = isEmailChange ? 'Email mis à jour !' : 'Compte confirmé !'
+  message.value = isEmailChange
+    ? 'Votre nouvelle adresse email est désormais active.'
+    : 'Votre compte est activé et prêt à être utilisé.'
+  ready.value = true
 })
 </script>
 
