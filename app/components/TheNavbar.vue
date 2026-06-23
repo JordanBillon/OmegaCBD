@@ -102,7 +102,7 @@ const productsOpen = ref(false)
 const mobileOpen = ref(false)
 const { isDark, toggle } = useTheme()
 const isLoggedIn = ref(false)
-const { count, load } = useCart()
+const { count, load, clear } = useCart()
 onMounted(load)
 
 const isProductsRoute = computed(() => route.path.startsWith('/produits'))
@@ -114,8 +114,9 @@ onMounted(async () => {
   const { data: { user } } = await supabase.auth.getUser()
   isLoggedIn.value = !!user
 
-  supabase.auth.onAuthStateChange((_, session) => {
+  supabase.auth.onAuthStateChange((event, session) => {
     isLoggedIn.value = !!session
+    if (event === 'SIGNED_OUT') clear()
   })
 })
 
