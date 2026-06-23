@@ -113,6 +113,7 @@ onMounted(async () => {
   })
   const { data: { user } } = await supabase.auth.getUser()
   isLoggedIn.value = !!user
+  if (!user) clear()
 
   supabase.auth.onAuthStateChange((event, session) => {
     isLoggedIn.value = !!session
